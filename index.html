@@ -1,0 +1,1033 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NexaGroup — Revenue Assurance &amp; Marketing Forecast (synthetic demo)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+:root{
+  --bg:#070c18; --bg2:#0b1220; --card:#101828; --card2:#16203a; --border:#22304e;
+  --text:#e8eefc; --muted:#8b98b8; --faint:#5b6888;
+  --green:#34d399; --amber:#fbbf24; --red:#f87171; --blue:#38bdf8; --grey:#7d8aa6;
+  --indigo:#6366f1; --cyan:#22d3ee;
+  --grad:linear-gradient(135deg,#6366f1 0%,#38bdf8 100%);
+  --radius:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:radial-gradient(1200px 700px at 15% -10%,#16223f 0%,var(--bg) 55%) fixed,var(--bg);
+  color:var(--text);font-family:'Inter',system-ui,sans-serif;font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+a{color:var(--blue);text-decoration:none}
+h1,h2,h3,h4{font-family:'Sora',sans-serif;letter-spacing:-.01em}
+.wrap{max-width:1280px;margin:0 auto;padding:0 22px}
+
+/* header */
+header{position:sticky;top:0;z-index:50;backdrop-filter:blur(12px);background:rgba(7,12,24,.72);border-bottom:1px solid var(--border)}
+.hd-inner{display:flex;align-items:center;gap:16px;padding:16px 0}
+.logo{width:40px;height:40px;border-radius:11px;background:var(--grad);display:grid;place-items:center;font-weight:800;font-family:'Sora';color:#06121f;font-size:17px;box-shadow:0 6px 22px -6px rgba(99,102,241,.7)}
+.hd-title{font-size:17px;font-weight:800;font-family:'Sora'}
+.hd-sub{font-size:12px;color:var(--muted)}
+.hd-right{margin-left:auto;display:flex;align-items:center;gap:10px}
+.badge{font-size:11px;font-weight:600;padding:5px 11px;border-radius:999px;border:1px solid var(--border);background:var(--card);color:var(--muted);white-space:nowrap}
+.badge b{color:var(--text);font-weight:600}
+
+/* kpi cards */
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:22px 0}
+.kpi{background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--border);border-radius:var(--radius);padding:15px 16px;position:relative;overflow:hidden;transition:transform .15s ease,border-color .15s ease}
+.kpi:hover{transform:translateY(-2px);border-color:#33476f}
+.kpi .lbl{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:8px}
+.kpi .val{font-size:24px;font-weight:800;font-family:'Sora';letter-spacing:-.02em}
+.kpi .sub{font-size:11px;color:var(--faint);margin-top:4px}
+.kpi::after{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--grad)}
+.kpi.g .val{color:var(--green)} .kpi.a .val{color:var(--amber)} .kpi.r .val{color:var(--red)}
+.kpi.b .val{color:var(--blue)}
+
+/* tabs */
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 18px;border-bottom:1px solid var(--border);padding-bottom:0}
+.tab{appearance:none;background:none;border:none;color:var(--muted);font-family:'Sora';font-weight:600;font-size:13px;padding:11px 16px;cursor:pointer;position:relative;border-radius:9px 9px 0 0}
+.tab:hover{color:var(--text)}
+.tab.active{color:var(--text)}
+.tab.active::after{content:"";position:absolute;left:10px;right:10px;bottom:-1px;height:3px;background:var(--grad);border-radius:3px 3px 0 0}
+
+section.pane{display:none;animation:fade .25s ease}
+section.pane.active{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:18px}
+.card h3{font-size:14px;font-weight:700;margin-bottom:4px}
+.card .desc{font-size:12px;color:var(--muted);margin-bottom:14px}
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:repeat(2,1fr)}
+.g3{grid-template-columns:repeat(3,1fr)}
+@media(max-width:900px){.g2,.g3{grid-template-columns:1fr}}
+.chart-box{position:relative;height:300px}
+.chart-box.tall{height:340px}
+
+/* table */
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th,td{padding:9px 11px;text-align:right;white-space:nowrap}
+th{color:var(--muted);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.03em;border-bottom:1px solid var(--border);cursor:pointer;user-select:none}
+th:first-child,td:first-child{text-align:left}
+td{border-bottom:1px solid #1a2440}
+tbody tr{transition:background .12s}
+tbody tr:hover{background:var(--card2)}
+tr.click{cursor:pointer}
+.num{font-variant-numeric:tabular-nums}
+.pos{color:var(--green);font-weight:600}
+.neg{color:var(--red);font-weight:600}
+.mut{color:var(--muted)}
+
+.pill{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;padding:4px 10px;border-radius:999px;border:1px solid transparent;white-space:nowrap}
+.pill::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+.pill.green{color:var(--green);background:rgba(52,211,153,.12);border-color:rgba(52,211,153,.3)}
+.pill.amber{color:var(--amber);background:rgba(251,191,36,.12);border-color:rgba(251,191,36,.3)}
+.pill.red{color:var(--red);background:rgba(248,113,113,.12);border-color:rgba(248,113,113,.3)}
+.pill.grey{color:var(--grey);background:rgba(148,163,184,.12);border-color:rgba(148,163,184,.3)}
+.pill.blue{color:var(--blue);background:rgba(56,189,248,.12);border-color:rgba(56,189,248,.3)}
+
+/* detail header */
+.sbu-head{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:14px}
+.sbu-head h2{font-size:22px}
+.sbu-meta{font-size:12px;color:var(--muted)}
+.sbu-controls{margin-left:auto;display:flex;gap:8px;align-items:center}
+select{background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:9px;padding:8px 12px;font-size:13px;font-family:inherit;cursor:pointer;outline:none;max-width:260px}
+.nav-btn{background:var(--card2);border:1px solid var(--border);color:var(--muted);width:34px;height:34px;border-radius:9px;cursor:pointer;font-size:15px}
+.nav-btn:hover{color:var(--text);border-color:#33476f}
+
+.verdict{border-left:3px solid;padding:12px 15px;border-radius:0 10px 10px 0;background:var(--card2);margin:10px 0}
+.verdict.green{border-color:var(--green)} .verdict.amber{border-color:var(--amber)}
+.verdict.red{border-color:var(--red)} .verdict.grey{border-color:var(--grey)}
+.verdict .vt{font-weight:700;font-size:13px;margin-bottom:3px}
+.verdict .vn{font-size:12.5px;color:var(--muted)}
+
+.mini-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin:12px 0}
+.mini{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:10px 12px}
+.mini .ml{font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.03em}
+.mini .mv{font-size:17px;font-weight:800;font-family:'Sora';margin-top:2px}
+
+.scenario{width:100%;border-collapse:collapse;font-size:12.5px}
+.scenario th,.scenario td{padding:8px 11px;text-align:right}
+.scenario th{color:var(--muted);font-size:11px;border-bottom:1px solid var(--border)}
+.scenario td{border-bottom:1px solid #1a2440}
+.scenario td:first-child{text-align:left}
+.scenario tr.hl td{background:rgba(99,102,241,.12);font-weight:600}
+
+.note{font-size:11.5px;color:var(--faint);font-style:italic}
+.warn{background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.35);border-radius:10px;padding:12px 15px;font-size:12.5px;color:#fcd34d;margin:10px 0}
+.warn b{color:var(--amber)}
+.callout{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin:10px 0}
+.callout h4{font-size:13px;margin-bottom:6px}
+.callout p,.callout li{font-size:12.5px;color:var(--muted)}
+.callout ul{padding-left:18px;margin-top:4px}
+footer{margin:40px 0 26px;text-align:center;color:var(--faint);font-size:11.5px}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:11.5px;color:var(--muted);margin-top:8px}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.dot{width:9px;height:9px;border-radius:3px;display:inline-block}
+.insights{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px;margin:4px 0 14px}
+.insight{background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--border);border-radius:var(--radius);padding:13px 16px;border-left:3px solid var(--blue)}
+.insight h4{font-size:12px;font-weight:700;font-family:'Sora';color:var(--muted);text-transform:uppercase;letter-spacing:.03em;margin-bottom:7px;display:flex;align-items:center;gap:7px}
+.insight .big{font-size:20px;font-weight:800;font-family:'Sora';letter-spacing:-.02em;margin-bottom:3px}
+.insight p{font-size:11.5px;color:var(--muted);line-height:1.45}
+.insight .t{font-weight:600;color:var(--text)}
+.insight.green{border-left-color:var(--green)} .insight.amber{border-left-color:var(--amber)}
+.insight.red{border-left-color:var(--red)} .insight.blue{border-left-color:var(--blue)}
+.alert{display:flex;gap:12px;align-items:flex-start;border:1px solid rgba(248,113,113,.35);background:linear-gradient(180deg,rgba(248,113,113,.10),rgba(248,113,113,.02));border-radius:var(--radius);padding:13px 16px;margin:0 0 16px;font-size:12.5px;color:#fecaca;line-height:1.5}
+.alert b{color:#fca5a5}
+.flag{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;padding:3px 8px;border-radius:6px;border:1px solid var(--border);margin:1px 2px}
+.flag.r{color:#fca5a5;border-color:rgba(248,113,113,.35);background:rgba(248,113,113,.08)}
+.flag.a{color:#fcd34d;border-color:rgba(251,191,36,.35);background:rgba(251,191,36,.08)}
+.realloc{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-end;margin-bottom:12px}
+.realloc .f{display:flex;flex-direction:column;gap:6px}
+.realloc label{font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.03em}
+.realloc select,.realloc input[type=range]{background:var(--card2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:8px 10px;font-family:inherit;font-size:13px}
+.realloc select{min-width:200px}
+.realloc .ro{font-weight:800;font-family:'Sora';font-size:22px;color:var(--green)}
+.realloc .ro.neg{color:var(--red)}
+ul.notes{list-style:none;padding:0;margin:0}
+ul.notes li{padding:7px 0;border-bottom:1px dashed var(--border);font-size:12.5px;color:var(--muted)}
+ul.notes li:last-child{border-bottom:none}
+ul.notes b{color:var(--text)}
+</style>
+</head>
+<body>
+<header><div class="wrap hd-inner">
+  <div class="logo">NG</div>
+  <div>
+    <div class="hd-title">Revenue Assurance &amp; Marketing Forecast</div>
+    <div class="hd-sub">NexaGroup · Strategy &amp; Analytics · FY 2026-27 · synthetic demo data</div>
+  </div>
+  <div class="hd-right">
+    <span class="badge">As-of <b>9 Sep 2026</b></span>
+    <span class="badge">Unit <b>BDT Crore</b></span>
+  </div>
+</div></header>
+
+<div class="wrap">
+  <div class="kpis" id="kpis"></div>
+  <div class="alert" id="globalAlert"></div>
+
+  <nav class="tabs" id="tabs">
+    <button class="tab active" data-t="overview">Overview</button>
+    <button class="tab" data-t="forecast">Forecast</button>
+    <button class="tab" data-t="efficiency">Efficiency</button>
+    <button class="tab" data-t="actions">Actions</button>
+    <button class="tab" data-t="warnings">Early Warnings</button>
+    <button class="tab" data-t="detail">SBU Detail</button>
+    <button class="tab" data-t="assumptions">Assumptions &amp; Method</button>
+  </nav>
+
+  <!-- OVERVIEW -->
+  <section class="pane active" id="tab-overview">
+    <div class="insights" id="insights"></div>
+    <div class="card" style="margin-bottom:14px">
+      <h3>Portfolio — Marketing Performance &amp; Year-End Projection</h3>
+      <div class="desc">16 SBUs. Click any row to open its SBU detail. Click a column header to sort.</div>
+      <div style="overflow-x:auto"><table id="ptable">
+        <thead><tr>
+          <th data-k="name">SBU</th><th data-k="category">Category</th>
+          <th data-k="rev_tgt">Target</th><th data-k="cy_tot">Q1 Rev</th>
+          <th data-k="rev_ach">Q1 Ach%</th><th data-k="mr_tot">Mkt Revenue</th>
+          <th data-k="mp_tot">Mkt Profit</th><th data-k="cy_mkt_tot">Mkt Spend</th>
+          <th data-k="cy_intensity">Spend%</th><th data-k="proj_base">Projected FY</th>
+          <th data-k="projected_ach">Proj Ach%</th><th data-k="status.label">Status</th>
+        </tr></thead>
+        <tbody id="pbody"></tbody>
+      </table></div>
+    </div>
+    <div class="grid g2">
+      <div class="card"><h3>Q1 Revenue Achievement by SBU</h3><div class="desc">vs Q1 phased target (RAG: ≥90% green, 60-90% amber, &lt;60% red)</div><div class="chart-box"><canvas id="ovAch"></canvas></div></div>
+      <div class="card"><h3>Marketing Revenue by SBU</h3><div class="desc">CY − PY (like-for-like). Green = growth, red = below prior year.</div><div class="chart-box"><canvas id="ovMr"></canvas></div></div>
+      <div class="card"><h3>Marketing Profit by SBU</h3><div class="desc">Marketing Revenue × FY26 gross margin. Green = positive contribution.</div><div class="chart-box"><canvas id="ovMp"></canvas></div></div>
+      <div class="card"><h3>Projected FY27 Achievement by SBU</h3><div class="desc">Where each SBU lands if the current trend holds for the next 9 months.</div><div class="chart-box"><canvas id="ovProj"></canvas></div></div>
+      <div class="card"><h3>Target vs Projected FY27 (Cr)</h3><div class="desc">Absolute plan gap per SBU. Grey = target, coloured = current-trend projection.</div><div class="chart-box tall"><canvas id="ovTvP"></canvas></div></div>
+      <div class="card"><h3>Growth–Achievement Matrix</h3><div class="desc">X = Q1 achievement (vs phased target), Y = Q1 YoY growth. Lines at 100% / 0%. Bubble = revenue target.</div><div class="chart-box tall"><canvas id="ovMatrix"></canvas></div></div>
+      <div class="card"><h3>Category — Q1 vs Projected Achievement</h3><div class="desc">Portfolio aggregated by category. Solid = Q1 now, faded = projected year-end.</div><div class="chart-box"><canvas id="ovCat"></canvas></div></div>
+      <div class="card"><h3>Marketing Spend Share</h3><div class="desc">Share of Q1-to-date marketing spend (GL 4210001).</div><div class="chart-box"><canvas id="ovSpend"></canvas></div></div>
+    </div>
+  </section>
+
+  <!-- FORECAST -->
+  <section class="pane" id="tab-forecast">
+    <div class="grid g2" style="margin-bottom:14px">
+      <div class="card"><h3>Portfolio Monthly — Actual + Forecast vs Target</h3><div class="desc">Green = actual (Jul-Sep), blue = forecast (Oct-Jun). Grey dashed = monthly target.</div><div class="chart-box tall"><canvas id="fcMonthly"></canvas></div></div>
+      <div class="card"><h3>Projected FY27 vs Target</h3><div class="desc">Current-trend projection (seasonal × Q1 YoY) against the annual plan.</div><div class="chart-box tall"><canvas id="fcBar"></canvas></div></div>
+    </div>
+    <div class="card">
+      <h3>Q1 Achievement vs Projected Achievement</h3>
+      <div class="desc">X = how we're tracking now (Q1), Y = where we land at year-end if the trend holds. Quadrants split at 100%. Bubble size = revenue target.</div>
+      <div class="chart-box tall"><canvas id="fcScatter"></canvas></div>
+    </div>
+    <div class="card" style="margin-top:14px">
+      <h3>Gap Attribution — who drives the shortfall?</h3>
+      <div class="desc">Projected FY27 − target per SBU. Red = projected shortfall, green = projected surplus. The total (11,845 Cr target vs 9,769 Cr projected) concentrates in a handful of SBUs.</div>
+      <div class="chart-box tall"><canvas id="fcGap"></canvas></div>
+    </div>
+    <div class="card" style="margin-top:14px">
+      <h3>Portfolio scenario band</h3>
+      <div class="desc">Where the full portfolio lands under three scenarios — repeat FY26 (0% growth), hold the current Q1 trend, or hit the plan. The spread is the planning risk.</div>
+      <div class="chart-box" style="height:220px"><canvas id="fcScen"></canvas></div>
+    </div>
+  </section>
+
+  <!-- EFFICIENCY -->
+  <section class="pane" id="tab-efficiency">
+    <div class="card" style="margin-bottom:14px">
+      <h3>Marketing Productivity — how much growth does each Cr of spend buy?</h3>
+      <div class="desc">Marketing Revenue per Cr of marketing spend (GL 4210001). Positive = growth funded efficiently; negative = spending while revenue falls. Click a column header to sort.</div>
+      <div style="overflow-x:auto"><table id="etable">
+        <thead><tr>
+          <th data-k="name">SBU</th><th data-k="mr_tot">Mkt Revenue</th>
+          <th data-k="cy_mkt_tot">Mkt Spend</th><th data-k="rev_per_spend">Rev / Cr Spend</th>
+          <th data-k="cy_intensity">Intensity CY</th><th data-k="py_intensity">Intensity PY</th>
+          <th data-k="intensity_delta">Intensity Δ</th><th data-k="mom">MoM (Aug/Jul)</th><th data-k="cls">Class</th>
+        </tr></thead>
+        <tbody id="ebody"></tbody>
+      </table></div>
+    </div>
+    <div class="grid g2">
+      <div class="card"><h3>Spend vs Marketing Revenue</h3><div class="desc">X = Q1 marketing spend, Y = marketing revenue (growth). Bubble = revenue target. Above the diagonal line = every Cr spent returns more than 1 Cr of growth.</div><div class="chart-box tall"><canvas id="efScatter"></canvas></div></div>
+      <div class="card"><h3>Marketing Revenue per Cr Spend</h3><div class="desc">Green = efficient growth, red = spending in decline. SBUs with no meaningful spend are excluded.</div><div class="chart-box tall"><canvas id="efBar"></canvas></div></div>
+    </div>
+    <div class="card" style="margin-top:14px">
+      <h3>Reallocation Simulator — move spend from decline to growth</h3>
+      <div class="desc">Estimate the Marketing Revenue (growth) impact of moving spend from a "declining on spend" SBU to a "behind but growing" SBU, using each SBU's current Rev-per-Cr-spend.</div>
+      <div class="realloc">
+        <div class="f"><label>Move from (source)</label><select id="raFrom"></select></div>
+        <div class="f"><label>Move to (destination)</label><select id="raTo"></select></div>
+        <div class="f"><label>Amount: <output id="raVal">5</output> Cr</label><input type="range" id="raAmt" min="1" max="20" step="1" value="5"></div>
+        <div class="f"><label>Est. net growth impact</label><output class="ro" id="raResult">—</output></div>
+      </div>
+      <div class="desc" id="raNote"></div>
+    </div>
+  </section>
+
+  <!-- DETAIL -->
+  <section class="pane" id="tab-detail">
+    <div class="sbu-head">
+      <div>
+        <h2 id="dName">—</h2>
+        <div class="sbu-meta" id="dMeta"></div>
+      </div>
+      <div class="sbu-controls">
+        <button class="nav-btn" id="prevSbu">‹</button>
+        <select id="sbuSelect"></select>
+        <button class="nav-btn" id="nextSbu">›</button>
+      </div>
+    </div>
+    <div id="dStatus"></div>
+    <div id="dVerdict"></div>
+    <div class="mini-grid" id="dMinis"></div>
+    <div class="grid g2">
+      <div class="card" style="grid-column:1/-1"><h3>FY27 — Actual + Forecast vs Monthly Target</h3><div class="desc">Full-year path. Green = achieved, blue = projected on current trend, dashed = target.</div><div class="chart-box tall"><canvas id="dForecast"></canvas></div></div>
+      <div class="card"><h3>Revenue — CY vs PY (Q1)</h3><div class="desc">Like-for-like comparison of the first three months.</div><div class="chart-box"><canvas id="dCyPy"></canvas></div></div>
+      <div class="card"><h3>Marketing Revenue by Month</h3><div class="desc">Year-over-year revenue change. Green = growth, red = decline.</div><div class="chart-box"><canvas id="dMr"></canvas></div></div>
+      <div class="card"><h3>Seasonality Profile (FY26)</h3><div class="desc">Monthly index vs the FY26 average (1.0 = average month). Bars above 1.0 are seasonally strong.</div><div class="chart-box"><canvas id="dSeason"></canvas></div></div>
+      <div class="card" style="grid-column:1/-1"><h3>15-Month Revenue Trajectory</h3><div class="desc">Blue = FY26, green = FY27. Sep-26* is month-to-date (9 days).</div><div class="chart-box"><canvas id="dTraj"></canvas></div></div>
+    </div>
+    <div class="card" style="margin-top:14px">
+      <h3>Scenario — where FY27 lands</h3>
+      <div class="desc">Three projections: repeat FY26 (0% growth), hold the current Q1 trend, or hit the plan.</div>
+      <table class="scenario"><thead><tr><th>Scenario</th><th>Projected FY27 (Cr)</th><th>Achievement</th><th>Signal</th></tr></thead><tbody id="dScen"></tbody></table>
+    </div>
+  </section>
+
+  <!-- ACTIONS -->
+  <section class="pane" id="tab-actions">
+    <div class="card" style="margin-bottom:14px">
+      <h3>Decisions &amp; Actions — what the numbers force us to do</h3>
+      <div class="desc">Each SBU is mapped to a recommended move using Q1 achievement, YoY growth and marketing-efficiency class. Click a row to open its detail.</div>
+    </div>
+    <div class="grid g2" style="margin-bottom:14px">
+      <div class="card"><h3>Action mix</h3><div class="desc">How the 16 SBUs split across recommended moves.</div><div class="chart-box"><canvas id="acMix"></canvas></div></div>
+      <div class="card"><h3>Priority gap-closers</h3><div class="desc">Largest projected shortfalls (Cr vs plan) — where focused intervention moves the portfolio most.</div><div class="chart-box"><canvas id="acGap"></canvas></div></div>
+    </div>
+    <div class="card">
+      <div style="overflow-x:auto"><table id="atable">
+        <thead><tr>
+          <th>SBU</th><th>Status</th><th>Q1 Ach</th><th>YoY</th><th>Efficiency</th><th>Gap (Cr)</th><th>Recommended move</th><th>Owner</th><th>Focus</th><th>Priority</th>
+        </tr></thead>
+        <tbody id="abody"></tbody>
+      </table></div>
+    </div>
+  </section>
+
+  <!-- EARLY WARNINGS -->
+  <section class="pane" id="tab-warnings">
+    <div class="card" style="margin-bottom:14px">
+      <h3>Early Warnings — flags &amp; leading indicators</h3>
+      <div class="desc">Signals that anticipate the next month's report before it shows up as a revenue miss. Red = act now, amber = watch.</div>
+    </div>
+    <div class="card" style="margin-bottom:14px">
+      <div style="overflow-x:auto"><table id="wtable">
+        <thead><tr><th>SBU</th><th>Warnings</th><th>Run-rate (Cr/mo)</th><th>Required (Cr/mo)</th><th>Lift needed</th></tr></thead>
+        <tbody id="wbody"></tbody>
+      </table></div>
+    </div>
+    <div class="grid g2">
+      <div class="card"><h3>Run-rate vs required run-rate</h3><div class="desc">What each SBU is doing now (Jul+Aug) vs what it must do monthly to hit plan. A gap = the pace to close.</div><div class="chart-box tall"><canvas id="wBurn"></canvas></div></div>
+      <div class="card"><h3>Data to add (needs further extracts)</h3><div class="desc">Leading indicators that would make this predictive — scaffolded, pending a data pull.</div>
+        <ul class="notes">
+          <li><b>Order book / pipeline</b> — forward revenue visibility (open SO by SBU).</li>
+          <li><b>Channel sell-out &amp; outlet coverage</b> — demand-side health before sell-in.</li>
+          <li><b>Plant utilisation / capacity</b> — supply-constraint risk (esp. cement, steel).</li>
+          <li><b>Collections / DSO</b> — cash &amp; customer-health early signal.</li>
+          <li><b>Prior-month snapshot</b> — for a month-over-month status-change tracker.</li>
+        </ul>
+    </div>
+    </div>
+  </section>
+
+  <!-- ASSUMPTIONS -->
+  <section class="pane" id="tab-assumptions">
+    <div class="card">
+      <h3>Assumptions &amp; Method</h3>
+      <div class="desc">Everything that underpins the numbers, and what still needs business confirmation.</div>
+
+      <div class="warn"><b>Assumption to confirm #1 — the largest FMCG unit's target.</b> Its FY27 revenue target (2,581 Cr)
+      is far below its FY26 base yet is labelled a growth year. Confirm the FY27 scope (a line may be
+      divested or excluded) before relying on this target; even on a declining trend the projection exceeds it.</div>
+
+      <div class="warn"><b>Assumption to confirm #2 — portfolio total.</b> The sum of the 16 SBU revenue targets is
+      11,845 Cr, but the summary deck quotes a lower headline total. Confirm which SBUs that headline covers before relying on the portfolio total.</div>
+
+      <div class="callout"><h4>Revenue basis</h4>
+        <p>Revenue recognised on the general-ledger sales lines (local + foreign), credit entries.
+        Freight and agency commission income are excluded — cost pass-through / commission, not marketing-driven
+        sales. Same basis as the marketing-productivity model.</p></div>
+
+      <div class="callout"><h4>Marketing Revenue &amp; Profit</h4>
+        <p>Marketing Revenue = CY revenue − PY same-period revenue (like-for-like; Sep uses the same 9 days of Sep-25).
+        Marketing Profit = Marketing Revenue × FY26 gross margin ((Revenue − COGS) / Revenue). No ROMI — this is a
+        business-health view, not a media-efficiency view.</p></div>
+
+      <div class="callout"><h4>Forecast method (seasonal × trend)</h4>
+        <ul>
+          <li>Each remaining month = prior-year same-month × (1 + Q1-to-date YoY growth), preserving seasonality while carrying the current trend forward.</li>
+          <li>A YoY trend is only used when the prior-year Q1 is a genuine base (≥40% of current Q1); otherwise (new/ramp/pre-launch SBUs) the forecast is held flat at the recent Jul+Aug run-rate.</li>
+          <li>Trend is capped at ±100% to prevent explosive extrapolation.</li>
+          <li>Three scenarios: Repeat FY26 (0% growth) / Current trend / Plan (target).</li>
+        </ul></div>
+
+      <div class="callout"><h4>Data caveats</h4>
+        <ul>
+          <li>Sep-26 is 9 days MTD; prior-year comparators are like-for-like.</li>
+          <li>The air-travel unit's revenue is volatile (ticket refunds), and its target conflicts with the marketing budget.</li>
+          <li>The commodities line has a negative FY26 gross margin and is winding down — its Marketing Profit is not meaningful.</li>
+          <li>Several units (healthcare devices, crop protection, real estate) are pre-launch (no material revenue yet).</li>
+          <li>GL actuals can exceed the budget-vs-actual "net sales" line because the GL is booked on gross billing.</li>
+        </ul></div>
+    </div>
+  </section>
+
+  <footer>NexaGroup · Strategy &amp; Analytics — marketing situation &amp; forecast · portfolio demo built on a fully synthetic dataset (as-of 9 Sep 2026) · figures are invented, not real.</footer>
+</div>
+
+<script>
+const DATA = {"meta":{"as_of":"9 Sep 2026","unit":"BDT Crore","total_rev":11844.56,"total_cy":1830.4,"total_cy_ach":0.1545,"total_mr":-227.76,"total_mp":66.56,"total_mkt":79.04,"total_proj":9769.11,"total_proj_ach":0.8248,"months":[{"label":"Jul-26","val":736.06,"target":932.75,"actual":true},{"label":"Aug-26","val":910.39,"target":932.75,"actual":true},{"label":"Sep-26*","val":184.08,"target":932.75,"actual":true},{"label":"Oct-26","val":891.28,"target":989.17,"actual":false},{"label":"Nov-26","val":911.69,"target":989.17,"actual":false},{"label":"Dec-26","val":949.78,"target":989.17,"actual":false},{"label":"Jan-27","val":1031.03,"target":1013.35,"actual":false},{"label":"Feb-27","val":963.69,"target":1013.35,"actual":false},{"label":"Mar-27","val":879.97,"target":1013.35,"actual":false},{"label":"Apr-27","val":927.68,"target":1012.96,"actual":false},{"label":"May-27","val":672.1,"target":1012.96,"actual":false},{"label":"Jun-27","val":711.36,"target":1012.96,"actual":false}],"count":16},"sbus":[{"code":"NXCM","name":"Nexa Cement Company Ltd.","category":"Cement","bu_id":4,"gp":0.4222,"rev_tgt":3009.5,"mktled_lo":533,"mktled_hi":533,"q":{"1":0.22,"2":0.26,"3":0.27,"4":0.25},"note":"","cy_tot":433.08,"py_tot":449.63,"mr_tot":-16.55,"mp_tot":-6.98,"cy_mkt_tot":56.65,"cy_intensity":0.1308,"py_intensity":0.1589,"intensity_delta":-0.0281,"rev_per_spend":-0.29,"mom":0.0287,"proj_gap":-720.1,"seasonality":[{"l":"Jul-25","idx":0.984},{"l":"Aug-25","idx":0.936},{"l":"Sep-25","idx":1.035},{"l":"Oct-25","idx":0.956},{"l":"Nov-25","idx":1.025},{"l":"Dec-25","idx":1.064},{"l":"Jan-26","idx":1.108},{"l":"Feb-26","idx":0.929},{"l":"Mar-26","idx":1.033},{"l":"Apr-26","idx":1.105},{"l":"May-26","idx":0.873},{"l":"Jun-26","idx":0.952}],"rev_ach":0.6541,"rev_gap":229.01,"mktled_gap":149.8,"trend":-0.03680249813710157,"proj_base":2289.4,"proj_pess":2360.33,"projected_ach":0.7607,"run_rate":198.06,"required_run":286.27,"status":{"tone":"amber","label":"On track but below prior year","narrative":"Revenue is 65% of the Q1 phased target, but marketing revenue is negative (-16.5 Cr) vs prior year.","focus":"Diagnose the YoY softness (pricing / distribution / phasing) and re-target spend."},"pairs":[{"cl":"Jul-26","pl":"Jul-25","cy":195.25,"py":209.66,"mr":-14.4},{"cl":"Aug-26","pl":"Aug-25","cy":200.85,"py":199.45,"mr":1.4},{"cl":"Sep-26 (MTD)","pl":"Sep-25 (MTD)","cy":36.99,"py":40.53,"mr":-3.55}],"fc":[{"label":"Jul-26","val":195.25,"target":220.7,"actual":true},{"label":"Aug-26","val":200.85,"target":220.7,"actual":true},{"label":"Sep-26*","val":36.99,"target":220.7,"actual":true},{"label":"Oct-26","val":196.29,"target":260.82,"actual":false},{"label":"Nov-26","val":210.38,"target":260.82,"actual":false},{"label":"Dec-26","val":218.31,"target":260.82,"actual":false},{"label":"Jan-27","val":227.4,"target":270.86,"actual":false},{"label":"Feb-27","val":190.61,"target":270.86,"actual":false},{"label":"Mar-27","val":211.91,"target":270.86,"actual":false},{"label":"Apr-27","val":226.88,"target":250.8,"actual":false},{"label":"May-27","val":179.15,"target":250.8,"actual":false},{"label":"Jun-27","val":195.42,"target":250.8,"actual":false}],"traj":[{"l":"Jul-25","v":209.65,"fy":"fy26"},{"l":"Aug-25","v":199.45,"fy":"fy26"},{"l":"Sep-25","v":220.53,"fy":"fy26"},{"l":"Oct-25","v":203.79,"fy":"fy26"},{"l":"Nov-25","v":218.41,"fy":"fy26"},{"l":"Dec-25","v":226.64,"fy":"fy26"},{"l":"Jan-26","v":236.08,"fy":"fy26"},{"l":"Feb-26","v":197.89,"fy":"fy26"},{"l":"Mar-26","v":220,"fy":"fy26"},{"l":"Apr-26","v":235.55,"fy":"fy26"},{"l":"May-26","v":186,"fy":"fy26"},{"l":"Jun-26","v":202.88,"fy":"fy26"},{"l":"Jul-26","v":195.25,"fy":"fy27"},{"l":"Aug-26","v":200.85,"fy":"fy27"},{"l":"Sep-26*","v":36.99,"fy":"fy27"}]},{"code":"NXFM","name":"Nexa Staples Ltd.","category":"Staples / FMCG","bu_id":144,"gp":0.0288,"rev_tgt":2580.5,"mktled_lo":288.6,"mktled_hi":305.5,"q":{"1":0.25,"2":0.25,"3":0.25,"4":0.25},"note":"","cy_tot":596.36,"py_tot":844.91,"mr_tot":-248.56,"mp_tot":-7.16,"cy_mkt_tot":9.66,"cy_intensity":0.0162,"py_intensity":0.0028,"intensity_delta":0.0134,"rev_per_spend":-25.75,"mom":0.6085,"proj_gap":292.98,"seasonality":[{"l":"Jul-25","idx":1.033},{"l":"Aug-25","idx":1.131},{"l":"Sep-25","idx":0.63},{"l":"Oct-25","idx":1.333},{"l":"Nov-25","idx":1.255},{"l":"Dec-25","idx":1.319},{"l":"Jan-26","idx":1.379},{"l":"Feb-26","idx":1.193},{"l":"Mar-26","idx":0.875},{"l":"Apr-26","idx":0.879},{"l":"May-26","idx":0.463},{"l":"Jun-26","idx":0.512}],"rev_ach":0.9244,"rev_gap":48.76,"mktled_gap":322.82,"trend":-0.2941793846371279,"proj_base":2873.48,"proj_pess":3822.57,"projected_ach":1.1135,"run_rate":271.78,"required_run":220.45,"status":{"tone":"amber","label":"On track but below prior year","narrative":"Revenue is 92% of the Q1 phased target, but marketing revenue is negative (-249 Cr) vs prior year.","focus":"Diagnose the YoY softness (pricing / distribution / phasing) and re-target spend."},"pairs":[{"cl":"Jul-26","pl":"Jul-25","cy":208.38,"py":361.89,"mr":-153.52},{"cl":"Aug-26","pl":"Aug-25","cy":335.19,"py":396.31,"mr":-61.12},{"cl":"Sep-26 (MTD)","pl":"Sep-25 (MTD)","cy":52.79,"py":86.71,"mr":-33.92}],"fc":[{"label":"Jul-26","val":208.38,"target":215.05,"actual":true},{"label":"Aug-26","val":335.19,"target":215.05,"actual":true},{"label":"Sep-26*","val":52.79,"target":215.05,"actual":true},{"label":"Oct-26","val":329.67,"target":215.05,"actual":false},{"label":"Nov-26","val":310.39,"target":215.05,"actual":false},{"label":"Dec-26","val":326.27,"target":215.05,"actual":false},{"label":"Jan-27","val":341.08,"target":215.05,"actual":false},{"label":"Feb-27","val":295.03,"target":215.05,"actual":false},{"label":"Mar-27","val":216.32,"target":215.05,"actual":false},{"label":"Apr-27","val":217.33,"target":215.05,"actual":false},{"label":"May-27","val":114.53,"target":215.05,"actual":false},{"label":"Jun-27","val":126.53,"target":215.05,"actual":false}],"traj":[{"l":"Jul-25","v":361.89,"fy":"fy26"},{"l":"Aug-25","v":396.31,"fy":"fy26"},{"l":"Sep-25","v":220.75,"fy":"fy26"},{"l":"Oct-25","v":467.06,"fy":"fy26"},{"l":"Nov-25","v":439.75,"fy":"fy26"},{"l":"Dec-25","v":462.25,"fy":"fy26"},{"l":"Jan-26","v":483.24,"fy":"fy26"},{"l":"Feb-26","v":418,"fy":"fy26"},{"l":"Mar-26","v":306.49,"fy":"fy26"},{"l":"Apr-26","v":307.91,"fy":"fy26"},{"l":"May-26","v":162.25,"fy":"fy26"},{"l":"Jun-26","v":179.26,"fy":"fy26"},{"l":"Jul-26","v":208.38,"fy":"fy27"},{"l":"Aug-26","v":335.19,"fy":"fy27"},{"l":"Sep-26*","v":52.79,"fy":"fy27"}]},{"code":"NXST","name":"Nexa Steel Ltd.","category":"Steel / Rebar","bu_id":224,"gp":0.1667,"rev_tgt":2293.2,"mktled_lo":852.8,"mktled_hi":852.8,"q":{"1":0.25,"2":0.25,"3":0.25,"4":0.25},"note":"","cy_tot":258.74,"py_tot":254.63,"mr_tot":4.1,"mp_tot":0.69,"cy_mkt_tot":4.34,"cy_intensity":0.0168,"py_intensity":0.0124,"intensity_delta":0.0044,"rev_per_spend":0.94,"mom":0.2271,"proj_gap":-597.91,"seasonality":[{"l":"Jul-25","idx":0.801},{"l":"Aug-25","idx":0.718},{"l":"Sep-25","idx":0.802},{"l":"Oct-25","idx":0.794},{"l":"Nov-25","idx":0.858},{"l":"Dec-25","idx":0.917},{"l":"Jan-26","idx":1.21},{"l":"Feb-26","idx":1.403},{"l":"Mar-26","idx":1.257},{"l":"Apr-26","idx":1.411},{"l":"May-26","idx":0.77},{"l":"Jun-26","idx":1.06}],"rev_ach":0.4513,"rev_gap":314.56,"mktled_gap":209.11,"trend":0.016101970257061726,"proj_base":1695.29,"proj_pess":1672.53,"projected_ach":0.7393,"run_rate":112.71,"required_run":226.06,"status":{"tone":"amber","label":"Growing but behind plan","narrative":"Marketing revenue is positive (+4.2 Cr) but revenue is only 45% of the Q1 phased target.","focus":"Scale the winning campaigns and widen distribution to lift run-rate toward target."},"pairs":[{"cl":"Jul-26","pl":"Jul-25","cy":101.22,"py":116.99,"mr":-15.77},{"cl":"Aug-26","pl":"Aug-25","cy":124.2,"py":104.88,"mr":19.32},{"cl":"Sep-26 (MTD)","pl":"Sep-25 (MTD)","cy":33.32,"py":32.76,"mr":0.55}],"fc":[{"label":"Jul-26","val":101.22,"target":191.1,"actual":true},{"label":"Aug-26","val":124.2,"target":191.1,"actual":true},{"label":"Sep-26*","val":33.32,"target":191.1,"actual":true},{"label":"Oct-26","val":117.78,"target":191.1,"actual":false},{"label":"Nov-26","val":127.4,"target":191.1,"actual":false},{"label":"Dec-26","val":136.05,"target":191.1,"actual":false},{"label":"Jan-27","val":179.57,"target":191.1,"actual":false},{"label":"Feb-27","val":208.25,"target":191.1,"actual":false},{"label":"Mar-27","val":186.59,"target":191.1,"actual":false},{"label":"Apr-27","val":209.37,"target":191.1,"actual":false},{"label":"May-27","val":114.27,"target":191.1,"actual":false},{"label":"Jun-27","val":157.27,"target":191.1,"actual":false}],"traj":[{"l":"Jul-25","v":116.99,"fy":"fy26"},{"l":"Aug-25","v":104.88,"fy":"fy26"},{"l":"Sep-25","v":117.22,"fy":"fy26"},{"l":"Oct-25","v":115.92,"fy":"fy26"},{"l":"Nov-25","v":125.37,"fy":"fy26"},{"l":"Dec-25","v":133.89,"fy":"fy26"},{"l":"Jan-26","v":176.74,"fy":"fy26"},{"l":"Feb-26","v":204.95,"fy":"fy26"},{"l":"Mar-26","v":183.64,"fy":"fy26"},{"l":"Apr-26","v":206.05,"fy":"fy26"},{"l":"May-26","v":112.46,"fy":"fy26"},{"l":"Jun-26","v":154.79,"fy":"fy26"},{"l":"Jul-26","v":101.22,"fy":"fy27"},{"l":"Aug-26","v":124.2,"fy":"fy27"},{"l":"Sep-26*","v":33.32,"fy":"fy27"}]},{"code":"NXAF","name":"Nexa Agro Feed Ltd.","category":"Feed","bu_id":232,"gp":0.1874,"rev_tgt":1745.9,"mktled_lo":318.5,"mktled_hi":318.5,"q":{"1":0.25,"2":0.25,"3":0.25,"4":0.25},"note":"","cy_tot":300.96,"py_tot":183.52,"mr_tot":117.44,"mp_tot":22.01,"cy_mkt_tot":2.59,"cy_intensity":0.0086,"py_intensity":0.0139,"intensity_delta":-0.0053,"rev_per_spend":45.49,"mom":0.1985,"proj_gap":103.48,"seasonality":[{"l":"Jul-25","idx":0.904},{"l":"Aug-25","idx":0.786},{"l":"Sep-25","idx":0.838},{"l":"Oct-25","idx":0.919},{"l":"Nov-25","idx":1.007},{"l":"Dec-25","idx":1.009},{"l":"Jan-26","idx":1.124},{"l":"Feb-26","idx":1.065},{"l":"Mar-26","idx":1.094},{"l":"Apr-26","idx":1.189},{"l":"May-26","idx":1.051},{"l":"Jun-26","idx":1.014}],"rev_ach":0.6895,"rev_gap":135.51,"mktled_gap":-37.82,"trend":0.6399239461601449,"proj_base":1849.38,"proj_pess":1245.17,"projected_ach":1.0593,"run_rate":132.81,"required_run":160.55,"status":{"tone":"amber","label":"Growing & on track","narrative":"Revenue is 69% of the Q1 phased target with positive marketing revenue (+117 Cr).","focus":"Close the remaining gap in the next 1-2 months; sustain the marketing that is driving growth."},"pairs":[{"cl":"Jul-26","pl":"Jul-25","cy":120.82,"py":90.07,"mr":30.76},{"cl":"Aug-26","pl":"Aug-25","cy":144.8,"py":78.3,"mr":66.51},{"cl":"Sep-26 (MTD)","pl":"Sep-25 (MTD)","cy":35.34,"py":15.16,"mr":20.18}],"fc":[{"label":"Jul-26","val":120.82,"target":145.5,"actual":true},{"label":"Aug-26","val":144.81,"target":145.5,"actual":true},{"label":"Sep-26*","val":35.33,"target":145.5,"actual":true},{"label":"Oct-26","val":150.14,"target":145.5,"actual":false},{"label":"Nov-26","val":164.54,"target":145.5,"actual":false},{"label":"Dec-26","val":165.01,"target":145.5,"actual":false},{"label":"Jan-27","val":183.77,"target":145.5,"actual":false},{"label":"Feb-27","val":174.12,"target":145.5,"actual":false},{"label":"Mar-27","val":178.85,"target":145.5,"actual":false},{"label":"Apr-27","val":194.43,"target":145.5,"actual":false},{"label":"May-27","val":171.86,"target":145.5,"actual":false},{"label":"Jun-27","val":165.67,"target":145.5,"actual":false}],"traj":[{"l":"Jul-25","v":90.06,"fy":"fy26"},{"l":"Aug-25","v":78.3,"fy":"fy26"},{"l":"Sep-25","v":83.56,"fy":"fy26"},{"l":"Oct-25","v":91.56,"fy":"fy26"},{"l":"Nov-25","v":100.33,"fy":"fy26"},{"l":"Dec-25","v":100.62,"fy":"fy26"},{"l":"Jan-26","v":112.06,"fy":"fy26"},{"l":"Feb-26","v":106.17,"fy":"fy26"},{"l":"Mar-26","v":109.06,"fy":"fy26"},{"l":"Apr-26","v":118.56,"fy":"fy26"},{"l":"May-26","v":104.79,"fy":"fy26"},{"l":"Jun-26","v":101.02,"fy":"fy26"},{"l":"Jul-26","v":120.82,"fy":"fy27"},{"l":"Aug-26","v":144.81,"fy":"fy27"},{"l":"Sep-26*","v":35.33,"fy":"fy27"}]},{"code":"NXRM","name":"Nexa Ready Mix Ltd.","category":"Readymix Concrete","bu_id":175,"gp":0.2469,"rev_tgt":596.05,"mktled_lo":65,"mktled_hi":104,"q":{"1":0.25,"2":0.25,"3":0.25,"4":0.25},"note":"","cy_tot":105.13,"py_tot":106.8,"mr_tot":-1.66,"mp_tot":-0.42,"cy_mkt_tot":0.52,"cy_intensity":0.005,"py_intensity":0.0012,"intensity_delta":0.0038,"rev_per_spend":-3.18,"mom":0.3579,"proj_gap":-157.12,"seasonality":[{"l":"Jul-25","idx":1.172},{"l":"Aug-25","idx":1.186},{"l":"Sep-25","idx":1.049},{"l":"Oct-25","idx":1.088},{"l":"Nov-25","idx":1.033},{"l":"Dec-25","idx":1.112},{"l":"Jan-26","idx":1.206},{"l":"Feb-26","idx":0.961},{"l":"Mar-26","idx":0.757},{"l":"Apr-26","idx":0.721},{"l":"May-26","idx":1.199},{"l":"Jun-26","idx":0.516}],"rev_ach":0.7056,"rev_gap":43.88,"mktled_gap":22.79,"trend":-0.015537215534437765,"proj_base":438.93,"proj_pess":444.21,"projected_ach":0.7364,"run_rate":45.53,"required_run":54.55,"status":{"tone":"amber","label":"On track but below prior year","narrative":"Revenue is 71% of the Q1 phased target, but marketing revenue is negative (-1.7 Cr) vs prior year.","focus":"Diagnose the YoY softness (pricing / distribution / phasing) and re-target spend."},"pairs":[{"cl":"Jul-26","pl":"Jul-25","cy":38.62,"py":46.24,"mr":-7.62},{"cl":"Aug-26","pl":"Aug-25","cy":52.44,"py":46.81,"mr":5.62},{"cl":"Sep-26 (MTD)","pl":"Sep-25 (MTD)","cy":14.08,"py":13.74,"mr":0.34}],"fc":[{"label":"Jul-26","val":38.61,"target":49.67,"actual":true},{"label":"Aug-26","val":52.44,"target":49.67,"actual":true},{"label":"Sep-26*","val":14.08,"target":49.67,"actual":true},{"label":"Oct-26","val":42.25,"target":49.67,"actual":false},{"label":"Nov-26","val":40.12,"target":49.67,"actual":false},{"label":"Dec-26","val":43.21,"target":49.67,"actual":false},{"label":"Jan-27","val":46.84,"target":49.67,"actual":false},{"label":"Feb-27","val":37.34,"target":49.67,"actual":false},{"label":"Mar-27","val":29.42,"target":49.67,"actual":false},{"label":"Apr-27","val":27.99,"target":49.67,"actual":false},{"label":"May-27","val":46.59,"target":49.67,"actual":false},{"label":"Jun-27","val":20.03,"target":49.67,"actual":false}],"traj":[{"l":"Jul-25","v":46.24,"fy":"fy26"},{"l":"Aug-25","v":46.81,"fy":"fy26"},{"l":"Sep-25","v":41.41,"fy":"fy26"},{"l":"Oct-25","v":42.91,"fy":"fy26"},{"l":"Nov-25","v":40.76,"fy":"fy26"},{"l":"Dec-25","v":43.9,"fy":"fy26"},{"l":"Jan-26","v":47.58,"fy":"fy26"},{"l":"Feb-26","v":37.92,"fy":"fy26"},{"l":"Mar-26","v":29.89,"fy":"fy26"},{"l":"Apr-26","v":28.43,"fy":"fy26"},{"l":"May-26","v":47.32,"fy":"fy26"},{"l":"Jun-26","v":20.36,"fy":"fy26"},{"l":"Jul-26","v":38.61,"fy":"fy27"},{"l":"Aug-26","v":52.44,"fy":"fy27"},{"l":"Sep-26*","v":14.08,"fy":"fy27"}]},{"code":"NXEL","name":"Nexa Electricals Ltd.","category":"Electrical","bu_id":237,"gp":0.4991,"rev_tgt":455.09,"mktled_lo":213.2,"mktled_hi":213.2,"q":{"1":0.25,"2":0.25,"3":0.25,"4":0.25},"note":"","cy_tot":60.92,"py_tot":2,"mr_tot":58.9,"mp_tot":29.39,"cy_mkt_tot":2.67,"cy_intensity":0.0439,"py_intensity":0.2446,"intensity_delta":-0.2008,"rev_per_spend":22.05,"mom":0.0986,"proj_gap":-147.45,"seasonality":[{"l":"Jul-25","idx":0},{"l":"Aug-25","idx":0.108},{"l":"Sep-25","idx":0.492},{"l":"Oct-25","idx":0.826},{"l":"Nov-25","idx":0.825},{"l":"Dec-25","idx":1.03},{"l":"Jan-26","idx":1.284},{"l":"Feb-26","idx":1.109},{"l":"Mar-26","idx":1.094},{"l":"Apr-26","idx":1.363},{"l":"May-26","idx":1.372},{"l":"Jun-26","idx":1.497}],"rev_ach":0.5354,"rev_gap":52.86,"mktled_gap":-5.6,"trend":null,"proj_base":307.65,"proj_pess":307.65,"projected_ach":0.676,"run_rate":27.42,"required_run":43.8,"status":{"tone":"amber","label":"Growing but behind plan","narrative":"Marketing revenue is positive (+58.9 Cr) but revenue is only 54% of the Q1 phased target.","focus":"Scale the winning campaigns and widen distribution to lift run-rate toward target."},"pairs":[{"cl":"Jul-26","pl":"Jul-25","cy":26.13,"py":0,"mr":26.13},{"cl":"Aug-26","pl":"Aug-25","cy":28.7,"py":1.74,"mr":26.96},{"cl":"Sep-26 (MTD)","pl":"Sep-25 (MTD)","cy":6.08,"py":0.27,"mr":5.82}],"fc":[{"label":"Jul-26","val":26.13,"target":37.92,"actual":true},{"label":"Aug-26","val":28.7,"target":37.92,"actual":true},{"label":"Sep-26*","val":6.08,"target":37.92,"actual":true},{"label":"Oct-26","val":27.42,"target":37.92,"actual":false},{"label":"Nov-26","val":27.42,"target":37.92,"actual":false},{"label":"Dec-26","val":27.42,"target":37.92,"actual":false},{"label":"Jan-27","val":27.42,"target":37.92,"actual":false},{"label":"Feb-27","val":27.42,"target":37.92,"actual":false},{"label":"Mar-27","val":27.42,"target":37.92,"actual":false},{"label":"Apr-27","val":27.42,"target":37.92,"actual":false},{"label":"May-27","val":27.42,"target":37.92,"actual":false},{"label":"Jun-27","val":27.42,"target":37.92,"actual":false}],"traj":[{"l":"Jul-25","v":0,"fy":"fy26"},{"l":"Aug-25","v":1.74,"fy":"fy26"},{"l":"Sep-25","v":7.93,"fy":"fy26"},{"l":"Oct-25","v":13.31,"fy":"fy26"},{"l":"Nov-25","v":13.3,"fy":"fy26"},{"l":"Dec-25","v":16.6,"fy":"fy26"},{"l":"Jan-26","v":20.7,"fy":"fy26"},{"l":"Feb-26","v":17.88,"fy":"fy26"},{"l":"Mar-26","v":17.63,"fy":"fy26"},{"l":"Apr-26","v":21.98,"fy":"fy26"},{"l":"May-26","v":22.11,"fy":"fy26"},{"l":"Jun-26","v":24.14,"fy":"fy26"},{"l":"Jul-26","v":26.13,"fy":"fy27"},{"l":"Aug-26","v":28.7,"fy":"fy27"},{"l":"Sep-26*","v":6.08,"fy":"fy27"}]},{"code":"NXHC","name":"Nexa Pharma Ltd.","category":"Healthcare Retail","bu_id":239,"gp":0.1153,"rev_tgt":283.35,"mktled_lo":42.5,"mktled_hi":42.5,"q":{"1":0.122,"2":0.201,"3":0.282,"4":0.395},"note":"","cy_tot":20.12,"py_tot":2.69,"mr_tot":17.42,"mp_tot":2.02,"cy_mkt_tot":0.17,"cy_intensity":0.0083,"py_intensity":0.0341,"intensity_delta":-0.0258,"rev_per_spend":104.37,"mom":0.1591,"proj_gap":-185.04,"seasonality":[{"l":"Jul-25","idx":0.182},{"l":"Aug-25","idx":0.405},{"l":"Sep-25","idx":0.532},{"l":"Oct-25","idx":0.693},{"l":"Nov-25","idx":0.8},{"l":"Dec-25","idx":0.997},{"l":"Jan-26","idx":1.126},{"l":"Feb-26","idx":1.111},{"l":"Mar-26","idx":1.159},{"l":"Apr-26","idx":1.484},{"l":"May-26","idx":1.583},{"l":"Jun-26","idx":1.928}],"rev_ach":0.5821,"rev_gap":14.44,"mktled_gap":-6.8,"trend":null,"proj_base":98.31,"proj_pess":98.31,"projected_ach":0.3469,"run_rate":8.68,"required_run":29.25,"status":{"tone":"amber","label":"Growing but behind plan","narrative":"Marketing revenue is positive (+17.4 Cr) but revenue is only 58% of the Q1 phased target.","focus":"Scale the winning campaigns and widen distribution to lift run-rate toward target."},"pairs":[{"cl":"Jul-26","pl":"Jul-25","cy":8.05,"py":0.67,"mr":7.37},{"cl":"Aug-26","pl":"Aug-25","cy":9.33,"py":1.49,"mr":7.84},{"cl":"Sep-26 (MTD)","pl":"Sep-25 (MTD)","cy":2.75,"py":0.53,"mr":2.22}],"fc":[{"label":"Jul-26","val":8.05,"target":11.52,"actual":true},{"label":"Aug-26","val":9.32,"target":11.52,"actual":true},{"label":"Sep-26*","val":2.74,"target":11.52,"actual":true},{"label":"Oct-26","val":8.68,"target":18.98,"actual":false},{"label":"Nov-26","val":8.68,"target":18.98,"actual":false},{"label":"Dec-26","val":8.68,"target":18.98,"actual":false},{"label":"Jan-27","val":8.68,"target":26.64,"actual":false},{"label":"Feb-27","val":8.68,"target":26.64,"actual":false},{"label":"Mar-27","val":8.68,"target":26.64,"actual":false},{"label":"Apr-27","val":8.68,"target":37.31,"actual":false},{"label":"May-27","val":8.68,"target":37.31,"actual":false},{"label":"Jun-27","val":8.68,"target":37.31,"actual":false}],"traj":[{"l":"Jul-25","v":0.68,"fy":"fy26"},{"l":"Aug-25","v":1.5,"fy":"fy26"},{"l":"Sep-25","v":1.96,"fy":"fy26"},{"l":"Oct-25","v":2.55,"fy":"fy26"},{"l":"Nov-25","v":2.95,"fy":"fy26"},{"l":"Dec-25","v":3.68,"fy":"fy26"},{"l":"Jan-26","v":4.15,"fy":"fy26"},{"l":"Feb-26","v":4.1,"fy":"fy26"},{"l":"Mar-26","v":4.28,"fy":"fy26"},{"l":"Apr-26","v":5.47,"fy":"fy26"},{"l":"May-26","v":5.84,"fy":"fy26"},{"l":"Jun-26","v":7.11,"fy":"fy26"},{"l":"Jul-26","v":8.05,"fy":"fy27"},{"l":"Aug-26","v":9.32,"fy":"fy27"},{"l":"Sep-26*","v":2.74,"fy":"fy27"}]},{"code":"NXAIR","name":"Nexa Air Travel Ltd.","category":"Air / Travel","bu_id":245,"gp":1,"rev_tgt":247,"mktled_lo":14.42,"mktled_hi":26,"q":{"1":0.25,"2":0.25,"3":0.25,"4":0.25},"note":"","cy_tot":2.44,"py_tot":0.22,"mr_tot":2.21,"mp_tot":2.21,"cy_mkt_tot":0.35,"cy_intensity":0.1438,"py_intensity":0,"intensity_delta":0.1438,"rev_per_spend":6.32,"mom":-0.4493,"proj_gap":-234.23,"seasonality":null,"rev_ach":0.0395,"rev_gap":59.31,"mktled_gap":2.83,"trend":null,"proj_base":12.77,"proj_pess":12.77,"projected_ach":0.0517,"run_rate":1.14,"required_run":27.17,"status":{"tone":"amber","label":"Volatile / data caveat","narrative":"Ticketing revenue is volatile (refunds) and the 247 Cr target conflicts with the 26.2 Cr budget.","focus":"Reconcile the ticket-revenue recognition and the target base before committing marketing spend."},"pairs":[{"cl":"Jul-26","pl":"Jul-25","cy":1.48,"py":-4.02,"mr":5.5},{"cl":"Aug-26","pl":"Aug-25","cy":0.82,"py":-6.78,"mr":7.59},{"cl":"Sep-26 (MTD)","pl":"Sep-25 (MTD)","cy":0.14,"py":11.02,"mr":-10.88}],"fc":[{"label":"Jul-26","val":1.48,"target":20.58,"actual":true},{"label":"Aug-26","val":0.82,"target":20.58,"actual":true},{"label":"Sep-26*","val":0.14,"target":20.58,"actual":true},{"label":"Oct-26","val":1.14,"target":20.58,"actual":false},{"label":"Nov-26","val":1.14,"target":20.58,"actual":false},{"label":"Dec-26","val":1.14,"target":20.58,"actual":false},{"label":"Jan-27","val":1.14,"target":20.58,"actual":false},{"label":"Feb-27","val":1.14,"target":20.58,"actual":false},{"label":"Mar-27","val":1.14,"target":20.58,"actual":false},{"label":"Apr-27","val":1.14,"target":20.58,"actual":false},{"label":"May-27","val":1.14,"target":20.58,"actual":false},{"label":"Jun-27","val":1.14,"target":20.58,"actual":false}],"traj":[{"l":"Jul-25","v":-4.02,"fy":"fy26"},{"l":"Aug-25","v":-6.77,"fy":"fy26"},{"l":"Sep-25","v":7.68,"fy":"fy26"},{"l":"Oct-25","v":-1.56,"fy":"fy26"},{"l":"Nov-25","v":-1.87,"fy":"fy26"},{"l":"Dec-25","v":1.27,"fy":"fy26"},{"l":"Jan-26","v":-0.32,"fy":"fy26"},{"l":"Feb-26","v":0.57,"fy":"fy26"},{"l":"Mar-26","v":0.87,"fy":"fy26"},{"l":"Apr-26","v":2.5,"fy":"fy26"},{"l":"May-26","v":2.61,"fy":"fy26"},{"l":"Jun-26","v":1.29,"fy":"fy26"},{"l":"Jul-26","v":1.48,"fy":"fy27"},{"l":"Aug-26","v":0.82,"fy":"fy27"},{"l":"Sep-26*","v":0.14,"fy":"fy27"}]},{"code":"NXCE","name":"Nexa Consumer Electronics","category":"Consumer Electronics","bu_id":249,"gp":0.2562,"rev_tgt":163.45,"mktled_lo":17.45,"mktled_hi":17.45,"q":{"1":0.081,"2":0.195,"3":0.309,"4":0.415},"note":"","cy_tot":2.12,"py_tot":0,"mr_tot":2.12,"mp_tot":0.55,"cy_mkt_tot":0.12,"cy_intensity":0.0531,"py_intensity":0,"intensity_delta":0.0531,"rev_per_spend":18.85,"mom":-0.2435,"proj_gap":-152.62,"seasonality":null,"rev_ach":0.1597,"rev_gap":11.13,"mktled_gap":2.25,"trend":null,"proj_base":10.83,"proj_pess":10.83,"projected_ach":0.0662,"run_rate":0.96,"required_run":17.93,"status":{"tone":"amber","label":"Growing but behind plan","narrative":"Marketing revenue is positive (+2.1 Cr) but revenue is only 16% of the Q1 phased target.","focus":"Scale the winning campaigns and widen distribution to lift run-rate toward target."},"pairs":[{"cl":"Jul-26","pl":"Jul-25","cy":1.1,"py":0,"mr":1.1},{"cl":"Aug-26","pl":"Aug-25","cy":0.83,"py":0,"mr":0.83},{"cl":"Sep-26 (MTD)","pl":"Sep-25 (MTD)","cy":0.18,"py":0,"mr":0.18}],"fc":[{"label":"Jul-26","val":1.11,"target":4.41,"actual":true},{"label":"Aug-26","val":0.83,"target":4.41,"actual":true},{"label":"Sep-26*","val":0.18,"target":4.41,"actual":true},{"label":"Oct-26","val":0.96,"target":10.62,"actual":false},{"label":"Nov-26","val":0.96,"target":10.62,"actual":false},{"label":"Dec-26","val":0.96,"target":10.62,"actual":false},{"label":"Jan-27","val":0.96,"target":16.84,"actual":false},{"label":"Feb-27","val":0.96,"target":16.84,"actual":false},{"label":"Mar-27","val":0.96,"target":16.84,"actual":false},{"label":"Apr-27","val":0.96,"target":22.61,"actual":false},{"label":"May-27","val":0.96,"target":22.61,"actual":false},{"label":"Jun-27","val":0.96,"target":22.61,"actual":false}],"traj":[{"l":"Jul-25","v":0,"fy":"fy26"},{"l":"Aug-25","v":0,"fy":"fy26"},{"l":"Sep-25","v":0,"fy":"fy26"},{"l":"Oct-25","v":0,"fy":"fy26"},{"l":"Nov-25","v":0,"fy":"fy26"},{"l":"Dec-25","v":0,"fy":"fy26"},{"l":"Jan-26","v":0,"fy":"fy26"},{"l":"Feb-26","v":1.2,"fy":"fy26"},{"l":"Mar-26","v":0.92,"fy":"fy26"},{"l":"Apr-26","v":1.13,"fy":"fy26"},{"l":"May-26","v":1.48,"fy":"fy26"},{"l":"Jun-26","v":1.17,"fy":"fy26"},{"l":"Jul-26","v":1.11,"fy":"fy27"},{"l":"Aug-26","v":0.83,"fy":"fy27"},{"l":"Sep-26*","v":0.18,"fy":"fy27"}]},{"code":"NXCR","name":"Nexa Crop Protection Ltd.","category":"Crop Protection","bu_id":250,"gp":0,"rev_tgt":126.75,"mktled_lo":39,"mktled_hi":52,"q":{"1":0.25,"2":0.25,"3":0.25,"4":0.25},"note":"","cy_tot":0,"py_tot":0,"mr_tot":0,"mp_tot":0,"cy_mkt_tot":0.03,"cy_intensity":0,"py_intensity":0,"intensity_delta":0,"rev_per_spend":0,"mom":null,"proj_gap":-126.75,"seasonality":null,"rev_ach":0,"rev_gap":31.69,"mktled_gap":11.38,"trend":null,"proj_base":0,"proj_pess":0,"projected_ach":0,"run_rate":0,"required_run":14.08,"status":{"tone":"grey","label":"Launch phase","narrative":"No material revenue to date — the business is in launch/seed phase, so marketing is about building the brand, channel and pipeline rather than revenue conversion.","focus":"Set up distribution & routes, launch GTM, seed demand; monitor early sell-out and pipeline build."},"pairs":[{"cl":"Jul-26","pl":"Jul-25","cy":0,"py":0,"mr":0},{"cl":"Aug-26","pl":"Aug-25","cy":0,"py":0,"mr":0},{"cl":"Sep-26 (MTD)","pl":"Sep-25 (MTD)","cy":0,"py":0,"mr":0}],"fc":[{"label":"Jul-26","val":0,"target":10.56,"actual":true},{"label":"Aug-26","val":0,"target":10.56,"actual":true},{"label":"Sep-26*","val":0,"target":10.56,"actual":true},{"label":"Oct-26","val":0,"target":10.56,"actual":false},{"label":"Nov-26","val":0,"target":10.56,"actual":false},{"label":"Dec-26","val":0,"target":10.56,"actual":false},{"label":"Jan-27","val":0,"target":10.56,"actual":false},{"label":"Feb-27","val":0,"target":10.56,"actual":false},{"label":"Mar-27","val":0,"target":10.56,"actual":false},{"label":"Apr-27","val":0,"target":10.56,"actual":false},{"label":"May-27","val":0,"target":10.56,"actual":false},{"label":"Jun-27","val":0,"target":10.56,"actual":false}],"traj":[{"l":"Jul-25","v":0,"fy":"fy26"},{"l":"Aug-25","v":0,"fy":"fy26"},{"l":"Sep-25","v":0,"fy":"fy26"},{"l":"Oct-25","v":0,"fy":"fy26"},{"l":"Nov-25","v":0,"fy":"fy26"},{"l":"Dec-25","v":0,"fy":"fy26"},{"l":"Jan-26","v":0,"fy":"fy26"},{"l":"Feb-26","v":0,"fy":"fy26"},{"l":"Mar-26","v":0,"fy":"fy26"},{"l":"Apr-26","v":0,"fy":"fy26"},{"l":"May-26","v":0,"fy":"fy26"},{"l":"Jun-26","v":0,"fy":"fy26"},{"l":"Jul-26","v":0,"fy":"fy27"},{"l":"Aug-26","v":0,"fy":"fy27"},{"l":"Sep-26*","v":0,"fy":"fy27"}]},{"code":"NXRE","name":"Nexa Realty Holdings","category":"Real Estate","bu_id":244,"gp":0,"rev_tgt":100.54,"mktled_lo":100.54,"mktled_hi":100.54,"q":{"1":0.165,"2":0.24,"3":0.249,"4":0.346},"note":"","cy_tot":0,"py_tot":0,"mr_tot":0,"mp_tot":0,"cy_mkt_tot":0,"cy_intensity":0,"py_intensity":0,"intensity_delta":0,"rev_per_spend":null,"mom":null,"proj_gap":-100.54,"seasonality":null,"rev_ach":0,"rev_gap":16.59,"mktled_gap":25.14,"trend":null,"proj_base":0,"proj_pess":0,"projected_ach":0,"run_rate":0,"required_run":11.17,"status":{"tone":"grey","label":"Launch phase","narrative":"No material revenue to date — the business is in launch/seed phase, so marketing is about building the brand, channel and pipeline rather than revenue conversion.","focus":"Set up distribution & routes, launch GTM, seed demand; monitor early sell-out and pipeline build."},"pairs":[{"cl":"Jul-26","pl":"Jul-25","cy":0,"py":0,"mr":0},{"cl":"Aug-26","pl":"Aug-25","cy":0,"py":0,"mr":0},{"cl":"Sep-26 (MTD)","pl":"Sep-25 (MTD)","cy":0,"py":0,"mr":0}],"fc":[{"label":"Jul-26","val":0,"target":5.53,"actual":true},{"label":"Aug-26","val":0,"target":5.53,"actual":true},{"label":"Sep-26*","val":0,"target":5.53,"actual":true},{"label":"Oct-26","val":0,"target":8.05,"actual":false},{"label":"Nov-26","val":0,"target":8.05,"actual":false},{"label":"Dec-26","val":0,"target":8.05,"actual":false},{"label":"Jan-27","val":0,"target":8.35,"actual":false},{"label":"Feb-27","val":0,"target":8.35,"actual":false},{"label":"Mar-27","val":0,"target":8.35,"actual":false},{"label":"Apr-27","val":0,"target":11.6,"actual":false},{"label":"May-27","val":0,"target":11.6,"actual":false},{"label":"Jun-27","val":0,"target":11.6,"actual":false}],"traj":[{"l":"Jul-25","v":0,"fy":"fy26"},{"l":"Aug-25","v":0,"fy":"fy26"},{"l":"Sep-25","v":0,"fy":"fy26"},{"l":"Oct-25","v":0,"fy":"fy26"},{"l":"Nov-25","v":0,"fy":"fy26"},{"l":"Dec-25","v":0,"fy":"fy26"},{"l":"Jan-26","v":0,"fy":"fy26"},{"l":"Feb-26","v":0,"fy":"fy26"},{"l":"Mar-26","v":0,"fy":"fy26"},{"l":"Apr-26","v":0,"fy":"fy26"},{"l":"May-26","v":0,"fy":"fy26"},{"l":"Jun-26","v":0,"fy":"fy26"},{"l":"Jul-26","v":0,"fy":"fy27"},{"l":"Aug-26","v":0,"fy":"fy27"},{"l":"Sep-26*","v":0,"fy":"fy27"}]},{"code":"NXTY","name":"Nexa Mobility (Tyres)","category":"Tyres","bu_id":238,"gp":0.3039,"rev_tgt":92.85,"mktled_lo":23.17,"mktled_hi":23.17,"q":{"1":0.25,"2":0.25,"3":0.25,"4":0.25},"note":"","cy_tot":13.78,"py_tot":0,"mr_tot":13.78,"mp_tot":4.19,"cy_mkt_tot":0.31,"cy_intensity":0.0229,"py_intensity":0,"intensity_delta":0.0229,"rev_per_spend":43.62,"mom":0.0105,"proj_gap":-24.45,"seasonality":null,"rev_ach":0.5936,"rev_gap":9.44,"mktled_gap":-7.98,"trend":null,"proj_base":68.39,"proj_pess":68.39,"projected_ach":0.7366,"run_rate":6.07,"required_run":8.79,"status":{"tone":"amber","label":"Growing but behind plan","narrative":"Marketing revenue is positive (+13.8 Cr) but revenue is only 59% of the Q1 phased target.","focus":"Scale the winning campaigns and widen distribution to lift run-rate toward target."},"pairs":[{"cl":"Jul-26","pl":"Jul-25","cy":6.04,"py":0,"mr":6.04},{"cl":"Aug-26","pl":"Aug-25","cy":6.1,"py":0,"mr":6.1},{"cl":"Sep-26 (MTD)","pl":"Sep-25 (MTD)","cy":1.64,"py":0,"mr":1.64}],"fc":[{"label":"Jul-26","val":6.03,"target":7.74,"actual":true},{"label":"Aug-26","val":6.1,"target":7.74,"actual":true},{"label":"Sep-26*","val":1.64,"target":7.74,"actual":true},{"label":"Oct-26","val":6.07,"target":7.74,"actual":false},{"label":"Nov-26","val":6.07,"target":7.74,"actual":false},{"label":"Dec-26","val":6.07,"target":7.74,"actual":false},{"label":"Jan-27","val":6.07,"target":7.74,"actual":false},{"label":"Feb-27","val":6.07,"target":7.74,"actual":false},{"label":"Mar-27","val":6.07,"target":7.74,"actual":false},{"label":"Apr-27","val":6.07,"target":7.74,"actual":false},{"label":"May-27","val":6.07,"target":7.74,"actual":false},{"label":"Jun-27","val":6.07,"target":7.74,"actual":false}],"traj":[{"l":"Jul-25","v":0,"fy":"fy26"},{"l":"Aug-25","v":0,"fy":"fy26"},{"l":"Sep-25","v":0,"fy":"fy26"},{"l":"Oct-25","v":0,"fy":"fy26"},{"l":"Nov-25","v":0,"fy":"fy26"},{"l":"Dec-25","v":0,"fy":"fy26"},{"l":"Jan-26","v":0.83,"fy":"fy26"},{"l":"Feb-26","v":0.95,"fy":"fy26"},{"l":"Mar-26","v":3.38,"fy":"fy26"},{"l":"Apr-26","v":3.55,"fy":"fy26"},{"l":"May-26","v":3.74,"fy":"fy26"},{"l":"Jun-26","v":6.59,"fy":"fy26"},{"l":"Jul-26","v":6.03,"fy":"fy27"},{"l":"Aug-26","v":6.1,"fy":"fy27"},{"l":"Sep-26*","v":1.64,"fy":"fy27"}]},{"code":"NXMD","name":"Nexa MedTech Devices","category":"Healthcare Devices","bu_id":259,"gp":0,"rev_tgt":76.25,"mktled_lo":13,"mktled_hi":13,"q":{"1":0.25,"2":0.25,"3":0.25,"4":0.25},"note":"","cy_tot":0,"py_tot":0,"mr_tot":0,"mp_tot":0,"cy_mkt_tot":0,"cy_intensity":0,"py_intensity":0,"intensity_delta":0,"rev_per_spend":null,"mom":null,"proj_gap":-76.24,"seasonality":null,"rev_ach":0,"rev_gap":19.06,"mktled_gap":3.25,"trend":null,"proj_base":0,"proj_pess":0,"projected_ach":0,"run_rate":0,"required_run":8.48,"status":{"tone":"grey","label":"Launch phase","narrative":"No material revenue to date — the business is in launch/seed phase, so marketing is about building the brand, channel and pipeline rather than revenue conversion.","focus":"Set up distribution & routes, launch GTM, seed demand; monitor early sell-out and pipeline build."},"pairs":[{"cl":"Jul-26","pl":"Jul-25","cy":0,"py":0,"mr":0},{"cl":"Aug-26","pl":"Aug-25","cy":0,"py":0,"mr":0},{"cl":"Sep-26 (MTD)","pl":"Sep-25 (MTD)","cy":0,"py":0,"mr":0}],"fc":[{"label":"Jul-26","val":0,"target":6.36,"actual":true},{"label":"Aug-26","val":0,"target":6.36,"actual":true},{"label":"Sep-26*","val":0,"target":6.36,"actual":true},{"label":"Oct-26","val":0,"target":6.36,"actual":false},{"label":"Nov-26","val":0,"target":6.36,"actual":false},{"label":"Dec-26","val":0,"target":6.36,"actual":false},{"label":"Jan-27","val":0,"target":6.36,"actual":false},{"label":"Feb-27","val":0,"target":6.36,"actual":false},{"label":"Mar-27","val":0,"target":6.36,"actual":false},{"label":"Apr-27","val":0,"target":6.36,"actual":false},{"label":"May-27","val":0,"target":6.36,"actual":false},{"label":"Jun-27","val":0,"target":6.36,"actual":false}],"traj":[{"l":"Jul-25","v":0,"fy":"fy26"},{"l":"Aug-25","v":0,"fy":"fy26"},{"l":"Sep-25","v":0,"fy":"fy26"},{"l":"Oct-25","v":0,"fy":"fy26"},{"l":"Nov-25","v":0,"fy":"fy26"},{"l":"Dec-25","v":0,"fy":"fy26"},{"l":"Jan-26","v":0,"fy":"fy26"},{"l":"Feb-26","v":0,"fy":"fy26"},{"l":"Mar-26","v":0,"fy":"fy26"},{"l":"Apr-26","v":0,"fy":"fy26"},{"l":"May-26","v":0,"fy":"fy26"},{"l":"Jun-26","v":0,"fy":"fy26"},{"l":"Jul-26","v":0,"fy":"fy27"},{"l":"Aug-26","v":0,"fy":"fy27"},{"l":"Sep-26*","v":0,"fy":"fy27"}]},{"code":"NXCO","name":"Nexa Commodities Ltd.","category":"Commodities","bu_id":221,"gp":-0.1085,"rev_tgt":47.59,"mktled_lo":46.8,"mktled_hi":46.8,"q":{"1":0.25,"2":0.25,"3":0.25,"4":0.25},"note":"","cy_tot":35.97,"py_tot":213.82,"mr_tot":-177.85,"mp_tot":19.29,"cy_mkt_tot":0.04,"cy_intensity":0.001,"py_intensity":0.0001,"intensity_delta":0.0009,"rev_per_spend":-5116,"mom":-0.7682,"proj_gap":72.89,"seasonality":[{"l":"Jul-25","idx":2.081},{"l":"Aug-25","idx":1.112},{"l":"Sep-25","idx":0.848},{"l":"Oct-25","idx":0.994},{"l":"Nov-25","idx":1.339},{"l":"Dec-25","idx":1.537},{"l":"Jan-26","idx":0.73},{"l":"Feb-26","idx":1.29},{"l":"Mar-26","idx":1.147},{"l":"Apr-26","idx":0.659},{"l":"May-26","idx":0.095},{"l":"Jun-26","idx":0.168}],"rev_ach":3.0237,"rev_gap":-24.08,"mktled_gap":189.55,"trend":-0.8317517230308767,"proj_base":120.48,"proj_pess":538.28,"projected_ach":2.5316,"run_rate":17.64,"required_run":1.29,"status":{"tone":"red","label":"Contracting (wind-down)","narrative":"Commodity-line revenue is declining sharply vs prior year and the business carries a negative margin. Marketing is defending a shrinking, loss-making base.","focus":"Decide the category strategy — protect only the profitable GT lines; exit or repurpose the rest."},"pairs":[{"cl":"Jul-26","pl":"Jul-25","cy":28.64,"py":131.3,"mr":-102.66},{"cl":"Aug-26","pl":"Aug-25","cy":6.64,"py":70.16,"mr":-63.53},{"cl":"Sep-26 (MTD)","pl":"Sep-25 (MTD)","cy":0.69,"py":12.36,"mr":-11.67}],"fc":[{"label":"Jul-26","val":28.64,"target":3.97,"actual":true},{"label":"Aug-26","val":6.64,"target":3.97,"actual":true},{"label":"Sep-26*","val":0.69,"target":3.97,"actual":true},{"label":"Oct-26","val":10.56,"target":3.97,"actual":false},{"label":"Nov-26","val":14.22,"target":3.97,"actual":false},{"label":"Dec-26","val":16.32,"target":3.97,"actual":false},{"label":"Jan-27","val":7.75,"target":3.97,"actual":false},{"label":"Feb-27","val":13.69,"target":3.97,"actual":false},{"label":"Mar-27","val":12.18,"target":3.97,"actual":false},{"label":"Apr-27","val":6.99,"target":3.97,"actual":false},{"label":"May-27","val":1,"target":3.97,"actual":false},{"label":"Jun-27","val":1.79,"target":3.97,"actual":false}],"traj":[{"l":"Jul-25","v":131.3,"fy":"fy26"},{"l":"Aug-25","v":70.16,"fy":"fy26"},{"l":"Sep-25","v":53.52,"fy":"fy26"},{"l":"Oct-25","v":62.73,"fy":"fy26"},{"l":"Nov-25","v":84.53,"fy":"fy26"},{"l":"Dec-25","v":97.01,"fy":"fy26"},{"l":"Jan-26","v":46.07,"fy":"fy26"},{"l":"Feb-26","v":81.38,"fy":"fy26"},{"l":"Mar-26","v":72.38,"fy":"fy26"},{"l":"Apr-26","v":41.59,"fy":"fy26"},{"l":"May-26","v":5.98,"fy":"fy26"},{"l":"Jun-26","v":10.62,"fy":"fy26"},{"l":"Jul-26","v":28.64,"fy":"fy27"},{"l":"Aug-26","v":6.64,"fy":"fy27"},{"l":"Sep-26*","v":0.69,"fy":"fy27"}]},{"code":"NXDX","name":"Nexa Diagnostics Ltd.","category":"Diagnostics","bu_id":255,"gp":1,"rev_tgt":19.99,"mktled_lo":9.1,"mktled_hi":9.1,"q":{"1":0.25,"2":0.25,"3":0.25,"4":0.25},"note":"","cy_tot":0.38,"py_tot":0,"mr_tot":0.38,"mp_tot":0.38,"cy_mkt_tot":0.17,"cy_intensity":0.4428,"py_intensity":0,"intensity_delta":0.4428,"rev_per_spend":2.26,"mom":0.6602,"proj_gap":-18.24,"seasonality":null,"rev_ach":0.0746,"rev_gap":4.63,"mktled_gap":1.9,"trend":null,"proj_base":1.76,"proj_pess":1.76,"projected_ach":0.0875,"run_rate":0.16,"required_run":2.18,"status":{"tone":"amber","label":"Growing but behind plan","narrative":"Marketing revenue is positive (+0.39 Cr) but revenue is only 7% of the Q1 phased target.","focus":"Scale the winning campaigns and widen distribution to lift run-rate toward target."},"pairs":[{"cl":"Jul-26","pl":"Jul-25","cy":0.11,"py":0,"mr":0.11},{"cl":"Aug-26","pl":"Aug-25","cy":0.19,"py":0,"mr":0.19},{"cl":"Sep-26 (MTD)","pl":"Sep-25 (MTD)","cy":0.07,"py":0,"mr":0.07}],"fc":[{"label":"Jul-26","val":0.12,"target":1.66,"actual":true},{"label":"Aug-26","val":0.2,"target":1.66,"actual":true},{"label":"Sep-26*","val":0.07,"target":1.66,"actual":true},{"label":"Oct-26","val":0.16,"target":1.66,"actual":false},{"label":"Nov-26","val":0.16,"target":1.66,"actual":false},{"label":"Dec-26","val":0.16,"target":1.66,"actual":false},{"label":"Jan-27","val":0.16,"target":1.66,"actual":false},{"label":"Feb-27","val":0.16,"target":1.66,"actual":false},{"label":"Mar-27","val":0.16,"target":1.66,"actual":false},{"label":"Apr-27","val":0.16,"target":1.66,"actual":false},{"label":"May-27","val":0.16,"target":1.66,"actual":false},{"label":"Jun-27","val":0.16,"target":1.66,"actual":false}],"traj":[{"l":"Jul-25","v":0,"fy":"fy26"},{"l":"Aug-25","v":0,"fy":"fy26"},{"l":"Sep-25","v":0,"fy":"fy26"},{"l":"Oct-25","v":0,"fy":"fy26"},{"l":"Nov-25","v":0,"fy":"fy26"},{"l":"Dec-25","v":0,"fy":"fy26"},{"l":"Jan-26","v":0,"fy":"fy26"},{"l":"Feb-26","v":0,"fy":"fy26"},{"l":"Mar-26","v":0,"fy":"fy26"},{"l":"Apr-26","v":0,"fy":"fy26"},{"l":"May-26","v":0,"fy":"fy26"},{"l":"Jun-26","v":0.04,"fy":"fy26"},{"l":"Jul-26","v":0.12,"fy":"fy27"},{"l":"Aug-26","v":0.2,"fy":"fy27"},{"l":"Sep-26*","v":0.07,"fy":"fy27"}]},{"code":"NXWV","name":"Nexa Workforce Ltd.","category":"HR-Tech","bu_id":252,"gp":1,"rev_tgt":6.55,"mktled_lo":1.81,"mktled_hi":1.81,"q":{"1":0.25,"2":0.25,"3":0.25,"4":0.25},"note":"","cy_tot":0.45,"py_tot":0,"mr_tot":0.45,"mp_tot":0.45,"cy_mkt_tot":1.48,"cy_intensity":3.2677,"py_intensity":0,"intensity_delta":3.2677,"rev_per_spend":0.31,"mom":0.1515,"proj_gap":-4.09,"seasonality":null,"rev_ach":0.2761,"rev_gap":1.18,"mktled_gap":0,"trend":null,"proj_base":2.46,"proj_pess":2.46,"projected_ach":0.3751,"run_rate":0.22,"required_run":0.68,"status":{"tone":"red","label":"Small base / unproven","narrative":"Revenue is tiny relative to spend and prior-year productivity was negative.","focus":"Cap spend until product-market fit and attributable conversions are proven."},"pairs":[{"cl":"Jul-26","pl":"Jul-25","cy":0.21,"py":0,"mr":0.21},{"cl":"Aug-26","pl":"Aug-25","cy":0.24,"py":0,"mr":0.24},{"cl":"Sep-26 (MTD)","pl":"Sep-25 (MTD)","cy":0.01,"py":0,"mr":0.01}],"fc":[{"label":"Jul-26","val":0.21,"target":0.55,"actual":true},{"label":"Aug-26","val":0.23,"target":0.55,"actual":true},{"label":"Sep-26*","val":0.01,"target":0.55,"actual":true},{"label":"Oct-26","val":0.22,"target":0.55,"actual":false},{"label":"Nov-26","val":0.22,"target":0.55,"actual":false},{"label":"Dec-26","val":0.22,"target":0.55,"actual":false},{"label":"Jan-27","val":0.22,"target":0.55,"actual":false},{"label":"Feb-27","val":0.22,"target":0.55,"actual":false},{"label":"Mar-27","val":0.22,"target":0.55,"actual":false},{"label":"Apr-27","val":0.22,"target":0.55,"actual":false},{"label":"May-27","val":0.22,"target":0.55,"actual":false},{"label":"Jun-27","val":0.22,"target":0.55,"actual":false}],"traj":[{"l":"Jul-25","v":0,"fy":"fy26"},{"l":"Aug-25","v":0,"fy":"fy26"},{"l":"Sep-25","v":0,"fy":"fy26"},{"l":"Oct-25","v":0,"fy":"fy26"},{"l":"Nov-25","v":0,"fy":"fy26"},{"l":"Dec-25","v":0,"fy":"fy26"},{"l":"Jan-26","v":0.01,"fy":"fy26"},{"l":"Feb-26","v":0.04,"fy":"fy26"},{"l":"Mar-26","v":0.03,"fy":"fy26"},{"l":"Apr-26","v":0.08,"fy":"fy26"},{"l":"May-26","v":0.03,"fy":"fy26"},{"l":"Jun-26","v":0.13,"fy":"fy26"},{"l":"Jul-26","v":0.21,"fy":"fy27"},{"l":"Aug-26","v":0.23,"fy":"fy27"},{"l":"Sep-26*","v":0.01,"fy":"fy27"}]}]};
+const {meta, sbus} = DATA;
+
+const $=s=>document.querySelector(s);
+const CL={green:'#34d399',amber:'#fbbf24',red:'#f87171',blue:'#38bdf8',grey:'#7d8aa6',indigo:'#6366f1',cyan:'#22d3ee'};
+
+Chart.defaults.color='#8b98b8';
+Chart.defaults.borderColor='rgba(255,255,255,.06)';
+Chart.defaults.font.family='Inter';
+Chart.defaults.font.size=11;
+
+function fmtCr(v){if(v==null)return '—';const a=Math.abs(v);const d=a>=100?0:(a>=1?1:2);return v.toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d});}
+function fmtPct(v){if(v==null)return '—';return (v*100).toFixed(1)+'%';}
+function fmtSign(v){if(v==null)return '—';return (v>=0?'+':'')+fmtCr(v);}
+function pctTone(v){return v>=.9?'green':(v>=.6?'amber':'red');}
+function esc(s){return String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+
+/* ---------- KPIs ---------- */
+function renderKPIs(){
+  const k=[
+    {l:'FY27 Revenue Target',v:fmtCr(meta.total_rev),s:'16 SBUs',c:'',t:'Sum of the 16 SBU FY27 revenue targets. Basis: general-ledger sales lines. Unit BDT Crore (synthetic).'},
+    {l:'Q1 Revenue (to-date)',v:fmtCr(meta.total_cy),s:'Jul+Aug+Sep (9d MTD)',c:'',t:'Jul + Aug + Sep-2026 actual revenue. Sep is only 9 days (1–9 Sep) vs like-for-like 1–9 Sep 2025. GL 3010001 + 3010002.'},
+    {l:'Q1 Achievement',v:fmtPct(meta.total_cy_ach),s:'vs Q1 phased target',c:pctTone(meta.total_cy_ach),t:'Q1-to-date revenue ÷ Q1 phased target. RAG: ≥90% on track, 60–90% at risk, <60% behind plan.'},
+    {l:'Marketing Revenue',v:fmtSign(meta.total_mr),s:'CY − PY, like-for-like',c:meta.total_mr>=0?'g':'',t:'CY revenue − PY same-period revenue (like-for-like). Positive = growth over the prior year; negative = below prior year.'},
+    {l:'Marketing Profit',v:fmtSign(meta.total_mp),s:'at FY26 gross margin',c:meta.total_mp>=0?'g':'',t:'Marketing Revenue × FY26 gross margin — the incremental gross profit that the marketing-driven growth generates.'},
+    {l:'Projected FY27',v:fmtCr(meta.total_proj),s:'current trend held',c:'b',t:'Where the portfolio lands at year-end if each SBU holds its current Q1 trend for the next 9 months (seasonal × trend, or flat run-rate for ramp/new SBUs).'},
+    {l:'Projected Ach.',v:fmtPct(meta.total_proj_ach),s:'vs 11,845 Cr target',c:pctTone(meta.total_proj_ach),t:'Projected FY27 ÷ total target. The headline gap: portfolio is tracking below the plan unless run-rate improves.'},
+  ];
+  $('#kpis').innerHTML=k.map(x=>`<div class="kpi ${x.c}" title="${esc(x.t)}"><div class="lbl">${x.l}</div><div class="val num">${x.v}</div><div class="sub">${x.s}</div></div>`).join('');
+}
+function renderAlert(){
+  const negGp=sbus.filter(x=>x.gp<0).map(x=>x.code+' ('+fmtPct(x.gp)+' GP)');
+  const totGap=sbus.reduce((s,x)=>s+Math.min(0,x.proj_gap),0);
+  const lines=[
+    '<b>2 confirmations pending</b> — the largest FMCG target vs the FY26 base, and the portfolio total vs the summary-deck headline.',
+    ...(negGp.length?['<b>Negative FY26 gross margin:</b> '+negGp.join(', ')+' — Marketing Profit is not meaningful there.']:[]),
+    '<b>Portfolio shortfall:</b> ≈ '+fmtCr(-totGap)+' Cr vs plan, concentrated in '+sbus.filter(x=>x.proj_gap<0).sort((a,b)=>a.proj_gap-b.proj_gap).slice(0,4).map(x=>x.code).join(' / ')+'.',
+  ];
+  $('#globalAlert').innerHTML='<div style="width:8px;align-self:stretch;border-radius:4px;background:linear-gradient(180deg,#f87171,#fbbf24)"></div><div>'+lines.join('<br>')+'</div>';
+}
+
+/* ---------- Tabs ---------- */
+const tabs=[...document.querySelectorAll('.tab')];
+tabs.forEach(t=>t.addEventListener('click',()=>{
+  tabs.forEach(x=>x.classList.remove('active')); t.classList.add('active');
+  document.querySelectorAll('section.pane').forEach(p=>p.classList.remove('active'));
+  $('#tab-'+t.dataset.t).classList.add('active');
+  if(t.dataset.t==='forecast') renderForecast();
+  if(t.dataset.t==='efficiency') renderEfficiency();
+  if(t.dataset.t==='actions') renderActions();
+  if(t.dataset.t==='warnings') renderWarnings();
+  if(t.dataset.t==='detail') renderDetail();
+}));
+
+/* ---------- Overview table ---------- */
+let sortKey=null,sortDir=1;
+function renderTable(){
+  const arr=[...sbus].sort((a,b)=>{
+    if(!sortKey) return b.rev_tgt-a.rev_tgt;
+    let av=a[sortKey],bv=b[sortKey];
+    if(typeof av==='string'){av=av.toLowerCase();bv=bv.toLowerCase();return av<bv?-1*sortDir:av>bv?1*sortDir:0;}
+    return (av-bv)*sortDir;
+  });
+  $('#pbody').innerHTML=arr.map(x=>{
+    const st=x.status;
+    return `<tr class="click" data-code="${x.code}" title="${sbuHover(x)}">
+      <td><b>${esc(x.name)}</b> <span class="mut">${x.code}</span></td>
+      <td class="mut">${esc(x.category)}</td>
+      <td class="num">${fmtCr(x.rev_tgt)}</td>
+      <td class="num">${fmtCr(x.cy_tot)}</td>
+      <td><span class="pill ${pctTone(x.rev_ach)}">${fmtPct(x.rev_ach)}</span></td>
+      <td class="num ${x.mr_tot>=0?'pos':'neg'}">${fmtSign(x.mr_tot)}</td>
+      <td class="num ${x.mp_tot>=0?'pos':'neg'}">${fmtSign(x.mp_tot)}</td>
+      <td class="num">${fmtCr(x.cy_mkt_tot)}</td>
+      <td class="num mut">${fmtPct(x.cy_intensity)}</td>
+      <td class="num">${fmtCr(x.proj_base)}</td>
+      <td><span class="pill ${pctTone(x.projected_ach)}">${fmtPct(x.projected_ach)}</span></td>
+      <td><span class="pill ${st.tone}">${esc(st.label)}</span></td>
+    </tr>`;
+  }).join('');
+  document.querySelectorAll('#pbody tr').forEach(tr=>tr.addEventListener('click',()=>{
+    currentSBU=tr.dataset.code; syncSelect(); switchToDetail();
+  }));
+}
+document.querySelectorAll('#ptable th').forEach(th=>th.addEventListener('click',()=>{
+  const k=th.dataset.k; if(!k)return;
+  if(sortKey===k){sortDir*=-1;}else{sortKey=k;sortDir=1;}
+  renderTable();
+}));
+
+/* ---------- Overview charts ---------- */
+let ovc={};
+function chartBar(id,labels,data,colors,axis='x',title='BDT Crore'){
+  const isH=axis==='y';
+  const cfg={type:isH?'bar':'bar',data:{labels,datasets:[{data,backgroundColor:colors,borderRadius:4,barThickness:'flex'}]},
+    options:{indexAxis:isH?'y':'x',responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' '+fmtCr(c.parsed.x)}}},
+      scales:{x:{grid:{display:false},ticks:{callback:v=>fmtCr(v)}},y:{grid:{display:!isH}}}
+  }};
+  if(isH){cfg.options.scales={x:{grid:{display:true}},y:{grid:{display:false}}};}
+  return new Chart($(id),cfg);
+}
+function renderInsights(){
+  const g=sbus.filter(x=>x.py_tot>1).map(x=>({c:x.code,g:x.mr_tot/x.py_tot})).sort((a,b)=>b.g-a.g);
+  const lag=sbus.filter(x=>x.cy_tot>=0.05).sort((a,b)=>a.rev_ach-b.rev_ach);
+  const gaps=sbus.filter(x=>x.proj_gap<0).sort((a,b)=>a.proj_gap-b.proj_gap);
+  const totSpend=sbus.reduce((s,x)=>s+x.cy_mkt_tot,0)||1;
+  const spendTop=[...sbus].sort((a,b)=>b.cy_mkt_tot-a.cy_mkt_tot).slice(0,3);
+  const cards=[];
+  if(g.length) cards.push({cls:'green',title:'Fastest growers · Q1 YoY',
+    big:g[0].c+' '+(g[0].g>=0?'+':'')+(g[0].g*100).toFixed(0)+'%',
+    body:'Top 3: '+g.slice(0,3).map(o=>`${o.c} ${(o.g>=0?'+':'')+(o.g*100).toFixed(0)}%`).join(' · ')});
+  if(lag.length) cards.push({cls:'red',title:'Behind plan · Q1 achievement',
+    big:lag[0].c+' '+(lag[0].rev_ach*100).toFixed(0)+'%',
+    body:'Bottom 3: '+lag.slice(0,3).map(o=>`${o.c} ${(o.rev_ach*100).toFixed(0)}%`).join(' · ')});
+  if(gaps.length) cards.push({cls:'amber',title:'Largest projected gaps',
+    big:'−'+fmtCr(-gaps[0].proj_gap)+' Cr',
+    body:gaps.slice(0,3).map(o=>`${o.c} ${fmtSign(o.proj_gap)} Cr`).join(' · ')});
+  cards.push({cls:'blue',title:'Marketing spend concentration',
+    big:(spendTop.reduce((s,x)=>s+x.cy_mkt_tot,0)/totSpend*100).toFixed(0)+'%',
+    body:'Top 3 ('+spendTop.map(x=>x.c).join(', ')+') hold '+(spendTop.reduce((s,x)=>s+x.cy_mkt_tot,0)/totSpend*100).toFixed(0)+'% of all marketing spend'});
+  $('#insights').innerHTML=cards.map(c=>`<div class="insight ${c.cls}"><h4>${c.title}</h4><div class="big num">${c.big}</div><p>${c.body}</p></div>`).join('');
+}
+
+function renderOverview(){
+  const r1=sbus.map(x=>({x:x.code,v:x.rev_ach,c:CL[pctTone(x.rev_ach)]}));
+  if(ovc.a)ovc.a.destroy();
+  ovc.a=new Chart($('#ovAch'),{type:'bar',data:{labels:sbus.map(x=>x.code),datasets:[{data:r1.map(x=>x.v),backgroundColor:r1.map(x=>x.c),borderRadius:4}]},
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},
+      tooltip:{...TTF,callbacks:{label:c=>' '+fmtPct(c.parsed.x),footer:it=>achReason(sbus[it[0].dataIndex])}}},
+      scales:{x:{ticks:{callback:v=>(v*100).toFixed(0)+'%'},grid:{color:'rgba(255,255,255,.05)'}},y:{grid:{display:false}}}}});
+
+  const mr=sbus.map(x=>x.mr_tot);
+  if(ovc.b)ovc.b.destroy();
+  ovc.b=new Chart($('#ovMr'),{type:'bar',data:{labels:sbus.map(x=>x.code),datasets:[{data:mr,backgroundColor:mr.map(v=>v>=0?CL.green:CL.red),borderRadius:4}]},
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},
+      tooltip:{...TTF,callbacks:{label:c=>' '+fmtSign(c.parsed.x)+' Cr',footer:it=>mrReason(sbus[it[0].dataIndex])}}},
+      scales:{x:{grid:{color:'rgba(255,255,255,.05)'}},y:{grid:{display:false}}}}});
+
+  const mp=sbus.map(x=>x.mp_tot);
+  if(ovc.e)ovc.e.destroy();
+  ovc.e=new Chart($('#ovMp'),{type:'bar',data:{labels:sbus.map(x=>x.code),datasets:[{data:mp,backgroundColor:mp.map(v=>v>=0?CL.green:CL.red),borderRadius:4}]},
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},
+      tooltip:{...TTF,callbacks:{label:c=>' '+fmtSign(c.parsed.x)+' Cr',footer:it=>mpReason(sbus[it[0].dataIndex])}}},
+      scales:{x:{grid:{color:'rgba(255,255,255,.05)'}},y:{grid:{display:false}}}}});
+
+  const pr=sbus.map(x=>({v:x.projected_ach,c:CL[pctTone(x.projected_ach)]}));
+  if(ovc.c)ovc.c.destroy();
+  ovc.c=new Chart($('#ovProj'),{type:'bar',data:{labels:sbus.map(x=>x.code),datasets:[{data:pr.map(x=>x.v),backgroundColor:pr.map(x=>x.c),borderRadius:4}]},
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},
+      tooltip:{...TTF,callbacks:{label:c=>' '+fmtPct(c.parsed.x),footer:it=>sbuForecastReason(sbus[it[0].dataIndex])}}},
+      scales:{x:{ticks:{callback:v=>(v*100).toFixed(0)+'%'},grid:{color:'rgba(255,255,255,.05)'}},y:{grid:{display:false}}}}});
+
+  if(ovc.f)ovc.f.destroy();
+  ovc.f=new Chart($('#ovTvP'),{type:'bar',data:{labels:sbus.map(x=>x.code),datasets:[
+    {label:'Target',data:sbus.map(x=>x.rev_tgt),backgroundColor:'#33415f',borderRadius:4},
+    {label:'Projected',data:sbus.map(x=>x.proj_base),backgroundColor:sbus.map(x=>CL[pctTone(x.projected_ach)]),borderRadius:4}
+  ]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{boxWidth:10}},tooltip:{...TTF,callbacks:{
+    label:c=>' '+c.dataset.label+': '+fmtCr(c.parsed.x)+(c.dataset.label==='Projected'?'  ('+fmtPct(sbus[c.dataIndex].projected_ach)+' of target)':''),
+    footer:it=>sbuForecastReason(sbus[it[0].dataIndex])}}},
+    scales:{x:{grid:{color:'rgba(255,255,255,.05)'}},y:{grid:{display:false}}}}});
+
+  const matrixQ={id:'matrixQ',beforeDatasetsDraw(chart){
+    const {ctx,scales:{x,y}}=chart; if(!x||!y)return;
+    ctx.save();ctx.strokeStyle='rgba(255,255,255,.25)';ctx.setLineDash([5,5]);ctx.lineWidth=1;
+    const px=x.getPixelForValue(1.0);ctx.beginPath();ctx.moveTo(px,y.top);ctx.lineTo(px,y.bottom);ctx.stroke();
+    const py=y.getPixelForValue(0);ctx.beginPath();ctx.moveTo(x.left,py);ctx.lineTo(x.right,py);ctx.stroke();ctx.restore();
+  }};
+  const md=sbus.filter(x=>x.py_tot>1 && x.cy_tot>=0.05).map(x=>({x:x.rev_ach,y:x.mr_tot/x.py_tot,
+    r:Math.max(4,Math.min(18,Math.sqrt(x.rev_tgt)*1.1)),code:x.code,name:x.name}));
+  if(ovc.g)ovc.g.destroy();
+  ovc.g=new Chart($('#ovMatrix'),{type:'scatter',data:{datasets:[{data:md,
+    backgroundColor:md.map(p=>p.x>=1?(p.y>=0?CL.green:CL.amber):(p.y>=0?CL.blue:CL.red)),borderColor:'#070c18',borderWidth:1}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{...TTF,callbacks:{
+      label:c=>{const d=c.raw;return ` ${d.name} — Ach ${fmtPct(d.x)}, YoY ${fmtSign(d.y*100).replace('%','')+'%'}`;},
+      footer:it=>{const d=it[0].raw,x=sbus.find(s=>s.code===d.code);
+        return ['Quadrant: '+(d.x>=1?'on-plan':'behind plan')+' + '+(d.y>=0?'growing':'declining'),
+          (d.x>=1&&d.y>=0?'Star — delivering and growing':d.x<1&&d.y>=0?'Potential — growing but still behind plan':d.x>=1?'On-plan but slowing — protect share':'Behind and declining — needs intervention'),
+          'Bubble size = revenue target '+fmtCr(x.rev_tgt)+' Cr · '+(x.trend==null?'ramp/new (no trend)':'Q1 YoY trend '+fmtSign(x.trend*100).replace('%','')+'%')];}}}},
+      scales:{x:{min:0,ticks:{callback:v=>(v*100).toFixed(0)+'%'},grid:{color:'rgba(255,255,255,.05)'},title:{display:true,text:'Q1 achievement'}},
+        y:{ticks:{callback:v=>(v*100).toFixed(0)+'%'},grid:{color:'rgba(255,255,255,.05)'},title:{display:true,text:'Q1 YoY growth'}}}},
+    plugins:[matrixQ]});
+
+  const cats={}; sbus.forEach(x=>{(cats[x.category]=cats[x.category]||[]).push(x);});
+  const catAgg=Object.entries(cats).map(([cat,list])=>{
+    const target=list.reduce((s,x)=>s+x.rev_tgt,0);
+    const q1t=list.reduce((s,x)=>s+x.rev_tgt*x.q[1],0);
+    const cy=list.reduce((s,x)=>s+x.cy_tot,0);
+    const proj=list.reduce((s,x)=>s+x.proj_base,0);
+    return {cat,target,cy,proj,ach:q1t?cy/q1t:0,projAch:target?proj/target:0,n:list.length};
+  }).sort((a,b)=>b.target-a.target);
+  if(ovc.h)ovc.h.destroy();
+  ovc.h=new Chart($('#ovCat'),{type:'bar',data:{labels:catAgg.map(c=>c.cat),datasets:[
+    {label:'Q1',data:catAgg.map(c=>c.ach),backgroundColor:CL.blue,borderRadius:4},
+    {label:'Projected',data:catAgg.map(c=>c.projAch),backgroundColor:'rgba(99,102,241,.45)',borderRadius:4}
+  ]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{boxWidth:10}},tooltip:{...TTF,callbacks:{
+    label:c=>' '+c.dataset.label+': '+fmtPct(c.parsed.x),
+    footer:it=>{const k=catAgg[it[0].dataIndex];
+      return ['Category: '+k.cat+' ('+k.n+' SBUs)','Target '+fmtCr(k.target)+' Cr · Q1 '+fmtCr(k.cy)+' Cr · projected FY '+fmtCr(k.proj)+' Cr',
+        'Q1 ach '+fmtPct(k.ach)+' → projected '+fmtPct(k.projAch)+' ('+toneWord(k.projAch)+')'];}}}},
+    scales:{x:{ticks:{callback:v=>(v*100).toFixed(0)+'%'},grid:{color:'rgba(255,255,255,.05)'}},y:{grid:{display:false}}}}});
+
+  if(ovc.d)ovc.d.destroy();
+  const spend=sbus.map(x=>x.cy_mkt_tot);
+  const totSpend=spend.reduce((s,v)=>s+v,0);
+  ovc.d=new Chart($('#ovSpend'),{type:'doughnut',data:{labels:sbus.map(x=>x.name),datasets:[{data:spend,backgroundColor:sbus.map(x=>'hsl('+((sbus.indexOf(x)*137)%360)+',60%,55%)'),borderColor:'#101828',borderWidth:2}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'58%',plugins:{legend:{position:'right',labels:{boxWidth:10,font:{size:10}}},tooltip:{...TTF,callbacks:{
+      label:c=>' '+fmtCr(c.parsed)+' Cr ('+(totSpend>0?(c.parsed/totSpend*100).toFixed(1):'0')+'%)',
+      footer:it=>spendReason(sbus[it[0].dataIndex],totSpend)}}}}});
+}
+
+/* ---------- Forecast ---------- */
+let fcc={};
+const quadrant={id:'quadrant',beforeDatasetsDraw(chart){
+  const {ctx,scales:{x,y}}=chart; if(!x||!y)return;
+  ctx.save();ctx.strokeStyle='rgba(255,255,255,.25)';ctx.setLineDash([5,5]);ctx.lineWidth=1;
+  const vx=x.getPixelForValue(1.0),vy=y.getPixelForValue(1.0);
+  ctx.beginPath();ctx.moveTo(vx,y.top);ctx.lineTo(vx,y.bottom);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(x.left,vy);ctx.lineTo(x.right,vy);ctx.stroke();ctx.restore();
+}};
+const TTF={footerFont:{size:11,weight:'500'},footerColor:'rgba(232,238,252,.62)',footerMarginTop:10,padding:12,titleFont:{weight:'700',size:12},boxPadding:4};
+
+function sbuForecastReason(x){
+  const lines=[];
+  if(x.trend!=null){
+    lines.push('Method: seasonal × Q1 YoY trend');
+    lines.push('Q1 YoY trend '+(x.trend>=0?'+':'')+(x.trend*100).toFixed(1)+'%  →  each remaining month = PY same-month × '+(1+x.trend).toFixed(3));
+  }else if(x.run_rate>0.5){
+    lines.push('Method: flat run-rate (ramp / new launch)');
+    lines.push('PY Q1 < 40% of CY Q1, so a YoY % is unreliable');
+    lines.push('Held flat at Jul+Aug run-rate of '+fmtCr(x.run_rate)+' Cr/mo');
+  }else{
+    lines.push('Pre-launch — no revenue basis to forecast yet');
+  }
+  lines.push('Q1 actual '+fmtCr(x.cy_tot)+' Cr  →  projected FY27 '+fmtCr(x.proj_base)+' Cr');
+  if(x.rev_tgt>0){
+    lines.push('Gap vs plan: '+fmtSign(x.proj_gap)+' Cr  ('+fmtPct(x.projected_ach)+' of target)');
+    if(x.required_run>0) lines.push('To hit plan it needs '+fmtCr(x.required_run)+' Cr/mo over the next 9 months');
+  }
+  return lines;
+}
+
+function toneWord(v){return v>=.9?'On track (≥90%)':(v>=.6?'At risk (60–90%)':'Behind plan (<60%)');}
+function achReason(x){
+  const phased=x.rev_tgt*x.q[1];
+  return ['Q1 actual '+fmtCr(x.cy_tot)+' Cr vs Q1 phased target '+fmtCr(phased)+' Cr',
+    'Achievement '+fmtPct(x.rev_ach)+' — '+toneWord(x.rev_ach),
+    'Gap vs phased: '+fmtSign(x.cy_tot-phased)+' Cr'];
+}
+function mrReason(x){
+  return ['Marketing Revenue = CY − PY, like-for-like (revenue GL lines)',
+    'CY '+fmtCr(x.cy_tot)+' Cr − PY '+fmtCr(x.py_tot)+' Cr = '+fmtSign(x.mr_tot)+' Cr',
+    'YoY '+(x.py_tot>0.01?((x.mr_tot/x.py_tot)>=0?'+':'')+(x.mr_tot/x.py_tot*100).toFixed(1)+'%':'n/a (no prior-year base)')];
+}
+function mpReason(x){
+  return ['Marketing Profit = Marketing Revenue × FY26 gross margin',
+    fmtSign(x.mr_tot)+' Cr × '+fmtPct(x.gp)+' = '+fmtSign(x.mp_tot)+' Cr'];
+}
+function spendReason(x,tot){
+  const sh=tot>0?(x.cy_mkt_tot/tot*100):0;
+  return ['Q1-to-date marketing spend (marketing GL line)',
+    fmtCr(x.cy_mkt_tot)+' Cr = '+sh.toFixed(1)+'% of total portfolio spend',
+    'Spend intensity '+fmtPct(x.cy_intensity)+' of revenue (prior year '+fmtPct(x.py_intensity)+')'];
+}
+function effReason(x){
+  const c=effClass(x);
+  const lines=['Class: '+c.label,
+    'Mkt revenue '+fmtSign(x.mr_tot)+' Cr ÷ spend '+fmtCr(x.cy_mkt_tot)+' Cr = '+(x.rev_per_spend>=0?'+':'')+x.rev_per_spend.toFixed(1)+'×'];
+  if(x.rev_per_spend>=1) lines.push('Each 1 Cr of spend returned ≥1 Cr of incremental revenue — efficient');
+  else if(x.mr_tot>=0) lines.push('Growth but each Cr of spend returns <1 Cr — costly growth');
+  else lines.push('Spend continued while revenue fell year-on-year — declining on spend');
+  if(x.mom!=null) lines.push('Momentum Aug vs Jul: '+(x.mom>=0?'+':'')+(x.mom*100).toFixed(1)+'%');
+  return lines;
+}
+function sbuHover(x){
+  return [x.name+' ('+x.code+') · '+x.category,
+    'Status: '+x.status.label+' — '+x.status.narrative,
+    ...sbuForecastReason(x)].map(esc).join('&#10;');
+}
+function effHover(x){
+  return [x.name+' ('+x.code+') · '+x.category,
+    x.status.label,
+    ...effReason(x)].map(esc).join('&#10;');
+}
+
+function renderForecast(){
+  if(fcc.m)Object.values(fcc).forEach(c=>c.destroy&&c.destroy()); fcc={};
+  const M=meta.months;
+  const cols=M.map(m=>m.actual?CL.green:CL.blue);
+  const pMr=sbus.reduce((s,x)=>s+x.mr_tot,0), pPy=sbus.reduce((s,x)=>s+x.py_tot,0);
+  const pG=(pPy>0.01)?pMr/pPy:null;
+
+  const monthReason=i=>{
+    const m=M[i], lines=[];
+    if(m.actual){
+      lines.push('ACTUAL — revenue GL lines (local + foreign), ÷1e7');
+      lines.push(m.label.indexOf('Sep')===0?'Sep is 9 days MTD (1–9 Sep 2026) vs like-for-like 1–9 Sep 2025':m.label+' fully closed');
+    }else{
+      lines.push('FORECAST — sum of 16 SBU projections');
+      lines.push('Per SBU: PY same-month × (1 + its Q1 YoY trend), or flat run-rate where ramping');
+      if(pG!=null) lines.push('Portfolio blended Q1 YoY: '+(pG>=0?'+':'')+(pG*100).toFixed(1)+'%');
+    }
+    lines.push('Target '+fmtCr(m.target)+' Cr  →  '+(m.val>=m.target?'ahead by':'short by')+' '+fmtCr(Math.abs(m.val-m.target))+' Cr');
+    return lines;
+  };
+
+  fcc.m=new Chart($('#fcMonthly'),{type:'bar',data:{labels:M.map(m=>m.label),datasets:[
+    {type:'bar',label:'Revenue',data:M.map(m=>m.val),backgroundColor:cols,borderRadius:4,order:2},
+    {type:'line',label:'Target',data:M.map(m=>m.target),borderColor:'#94a3b8',borderDash:[5,5],pointRadius:0,tension:.25,order:1}
+  ]},options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{position:'top',labels:{boxWidth:10}},tooltip:{...TTF,callbacks:{
+      label:c=>' '+c.dataset.label+': '+fmtCr(c.parsed.y),
+      footer:it=>monthReason(it[0].dataIndex)}}},
+    scales:{x:{grid:{display:false}},y:{grid:{color:'rgba(255,255,255,.05)'},ticks:{callback:v=>fmtCr(v)}}}}});
+
+  fcc.b=new Chart($('#fcBar'),{type:'bar',data:{labels:sbus.map(x=>x.code),datasets:[
+    {label:'Target',data:sbus.map(x=>x.rev_tgt),backgroundColor:'#33415f',borderRadius:4},
+    {label:'Projected',data:sbus.map(x=>x.proj_base),backgroundColor:sbus.map(x=>CL[pctTone(x.projected_ach)]),borderRadius:4}
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{boxWidth:10}},tooltip:{...TTF,callbacks:{
+    label:c=>{const x=sbus[c.dataIndex];return ' '+c.dataset.label+': '+fmtCr(c.parsed.y)+(c.dataset.label==='Projected'?'  ('+fmtPct(x.projected_ach)+' of target)':'');},
+    footer:it=>sbuForecastReason(sbus[it[0].dataIndex])}}},
+    scales:{x:{grid:{display:false}},y:{grid:{color:'rgba(255,255,255,.05)'},ticks:{callback:v=>fmtCr(v)}}}}});
+
+  fcc.s=new Chart($('#fcScatter'),{type:'scatter',data:{datasets:[{label:'SBU',
+    data:sbus.map(x=>({x:x.rev_ach,y:x.projected_ach,r:Math.max(4,Math.min(20,Math.sqrt(x.rev_tgt)*1.2)),code:x.code,name:x.name,tone:x.status.tone})),
+    backgroundColor:sbus.map(x=>CL[pctTone(x.projected_ach)]),borderColor:'#070c18',borderWidth:1}]
+  },options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:false},tooltip:{...TTF,callbacks:{
+      label:c=>{const d=c.raw;return ` ${d.name} — Q1 ${fmtPct(d.x)} now, ${fmtPct(d.y)} projected year-end`;},
+      footer:it=>{const d=it[0].raw;return ['Bubble size = revenue target ('+fmtCr(sbus[it[0].dataIndex].rev_tgt)+' Cr)',
+        (d.x>=1?'On-plan in Q1':'Behind plan in Q1')+' · '+(d.y>=1?'on-plan at year-end':'missing year-end plan'),
+        ...sbuForecastReason(sbus[it[0].dataIndex])];}}}},
+    scales:{x:{min:0,ticks:{callback:v=>(v*100).toFixed(0)+'%'},grid:{color:'rgba(255,255,255,.05)'},title:{display:true,text:'Q1 achievement'}},
+      y:{min:0,ticks:{callback:v=>(v*100).toFixed(0)+'%'},grid:{color:'rgba(255,255,255,.05)'},title:{display:true,text:'Projected achievement'}}}},
+    plugins:[quadrant]});
+
+  const gap=sbus.map(x=>x.proj_gap);
+  fcc.g=new Chart($('#fcGap'),{type:'bar',data:{labels:sbus.map(x=>x.code),datasets:[{data:gap,backgroundColor:gap.map(v=>v>=0?CL.green:CL.red),borderRadius:4}]},
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{...TTF,callbacks:{
+      label:c=>' '+(c.parsed.x>=0?'+':'')+fmtCr(c.parsed.x)+' Cr vs plan',
+      footer:it=>sbuForecastReason(sbus[it[0].dataIndex])}}},
+      scales:{x:{grid:{color:'rgba(255,255,255,.05)'}},y:{grid:{display:false}}}}});
+
+  const sPess=sbus.reduce((s,x)=>s+x.proj_pess,0);
+  const sBase=sbus.reduce((s,x)=>s+x.proj_base,0);
+  const sPlan=sbus.reduce((s,x)=>s+x.rev_tgt,0);
+  fcc.scen=new Chart($('#fcScen'),{type:'bar',data:{labels:['Repeat FY26','Current trend','Plan (target)'],datasets:[{data:[sPess,sBase,sPlan],backgroundColor:['#33415f',CL.blue,CL.green],borderRadius:4}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{...TTF,callbacks:{
+      label:c=>' '+fmtCr(c.parsed.y)+' Cr',
+      footer:it=>{const i=it[0].dataIndex;return i===0?['Pessimistic — every SBU repeats FY26 H2 with 0% growth']:i===1?['Base — each SBU holds its current Q1 trend','≈ '+fmtPct(sBase/sPlan)+' of plan']:['Plan — full '+fmtCr(sPlan)+' Cr target delivered'];}}}},
+      scales:{x:{grid:{display:false}},y:{grid:{color:'rgba(255,255,255,.05)'},ticks:{callback:v=>fmtCr(v)}}}}});
+}
+
+/* ---------- Detail ---------- */
+let currentSBU=sbus[0].code, dcc={};
+function sb(){return sbus.find(x=>x.code===currentSBU);}
+function syncSelect(){const s=sb();$('#sbuSelect').value=currentSBU;
+  $('#dName').textContent=s.name+' ('+s.code+')';
+  $('#dMeta').textContent=s.category+' · BU '+s.bu_id+' · GP '+fmtPct(s.gp)+' · Target '+fmtCr(s.rev_tgt)+' Cr';
+}
+function switchToDetail(){
+  tabs.forEach(x=>x.classList.remove('active'));
+  tabs.find(x=>x.dataset.t==='detail').classList.add('active');
+  document.querySelectorAll('section.pane').forEach(p=>p.classList.remove('active'));
+  $('#tab-detail').classList.add('active');
+  renderDetail();
+}
+function renderDetail(){
+  const s=sb(); syncSelect();
+  const st=s.status;
+  $('#dStatus').innerHTML=`<div class="sbu-head" style="margin-top:6px"><span class="pill ${st.tone}">${esc(st.label)}</span>
+    <span class="pill blue">Mkt-Led gap ${fmtSign(s.mktled_gap)} Cr</span>
+    <span class="pill ${s.trend!=null&&s.trend<0?'red':'blue'}">Q1 YoY ${s.trend==null?'n/a':fmtSign(s.trend*100).replace('%','')+'%'}</span></div>`;
+  $('#dVerdict').innerHTML=`<div class="verdict ${st.tone}"><div class="vt">${esc(st.label)}</div>
+    <div class="vn">${esc(st.narrative)}</div><div class="vn" style="margin-top:4px"><b style="color:var(--text)">Focus:</b> ${esc(st.focus)}</div></div>`;
+
+  $('#dMinis').innerHTML=[
+    ['FY27 Target',fmtCr(s.rev_tgt)+' Cr',''],['Q1 Revenue',fmtCr(s.cy_tot)+' Cr','vs '+fmtCr(s.rev_tgt*s.q[1])+' ph.'],
+    ['Q1 Ach',fmtPct(s.rev_ach),pctTone(s.rev_ach)],['Marketing Revenue',fmtSign(s.mr_tot)+' Cr',s.mr_tot>=0?'pos':'neg'],
+    ['Marketing Profit',fmtSign(s.mp_tot)+' Cr',s.mp_tot>=0?'pos':'neg'],['Mkt Spend',fmtCr(s.cy_mkt_tot)+' Cr',''],
+    ['Spend % Rev',fmtPct(s.cy_intensity),''],['Rev / Cr Spend',s.rev_per_spend==null?'n/a':(s.rev_per_spend>=0?'+':'')+s.rev_per_spend.toFixed(1)+'×',s.rev_per_spend==null?'':(s.rev_per_spend>=0?'pos':'neg')],
+    ['MoM (Aug vs Jul)',s.mom==null?'n/a':(s.mom>=0?'+':'')+(s.mom*100).toFixed(1)+'%',s.mom==null?'':(s.mom>=0?'pos':'neg')],
+    ['Projected FY',fmtCr(s.proj_base)+' Cr',''],['Proj Ach',fmtPct(s.projected_ach),pctTone(s.projected_ach)],
+    ['Run-rate (Jul+Aug)',fmtCr(s.run_rate)+' Cr/mo','']
+  ].map(m=>`<div class="mini"><div class="ml">${m[0]}</div><div class="mv num ${m[2]}">${m[1]}</div></div>`).join('');
+
+  Object.values(dcc).forEach(c=>c&&c.destroy()); dcc={};
+
+  const fc=s.fc;
+  dcc.a=new Chart($('#dForecast'),{type:'bar',data:{labels:fc.map(m=>m.label),datasets:[
+    {type:'bar',label:'Revenue',data:fc.map(m=>m.val),backgroundColor:fc.map(m=>m.actual?CL.green:CL.blue),borderRadius:4,order:2},
+    {type:'line',label:'Target',data:fc.map(m=>m.target),borderColor:'#94a3b8',borderDash:[5,5],pointRadius:0,tension:.25,order:1}
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{boxWidth:10}},tooltip:{...TTF,callbacks:{
+    label:c=>' '+c.dataset.label+': '+fmtCr(c.parsed.y),
+    footer:it=>{const m=fc[it[0].dataIndex],lines=[];
+      if(m.actual) lines.push('ACTUAL — revenue GL lines (÷1e7)');
+      else if(s.trend!=null) lines.push('FORECAST = PY same-month × '+(1+s.trend).toFixed(3));
+      else if(s.run_rate>0.5) lines.push('FORECAST = flat run-rate '+fmtCr(s.run_rate)+' Cr/mo');
+      else lines.push('Pre-launch — no forecast basis');
+      lines.push('Target '+fmtCr(m.target)+' Cr → '+(m.val>=m.target?'ahead by':'short by')+' '+fmtCr(Math.abs(m.val-m.target))+' Cr');
+      lines.push('Projected FY27 '+fmtCr(s.proj_base)+' Cr ('+fmtPct(s.projected_ach)+' of target)');
+      return lines;}}}},
+    scales:{x:{grid:{display:false}},y:{grid:{color:'rgba(255,255,255,.05)'},ticks:{callback:v=>fmtCr(v)}}}}});
+
+  dcc.b=new Chart($('#dCyPy'),{type:'bar',data:{labels:s.pairs.map(p=>p.cl.replace(' (MTD)','')),datasets:[
+    {label:'CY',data:s.pairs.map(p=>p.cy),backgroundColor:CL.green,borderRadius:4},
+    {label:'PY',data:s.pairs.map(p=>p.py),backgroundColor:'#33415f',borderRadius:4}
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{boxWidth:10}},tooltip:{...TTF,callbacks:{
+    label:c=>' '+c.dataset.label+': '+fmtCr(c.parsed.y),
+    footer:it=>{const p=s.pairs[it[0].dataIndex];
+      return [p.cl+': CY '+fmtCr(p.cy)+' Cr vs PY '+fmtCr(p.py)+' Cr',
+        'YoY change '+fmtSign(p.mr)+' Cr ('+(p.py>0.01?(p.mr/p.py>=0?'+':'')+(p.mr/p.py*100).toFixed(1)+'%':'n/a — no prior-year base')+')'];}}}},
+    scales:{x:{grid:{display:false}},y:{grid:{color:'rgba(255,255,255,.05)'},ticks:{callback:v=>fmtCr(v)}}}}});
+
+  dcc.c=new Chart($('#dMr'),{type:'bar',data:{labels:s.pairs.map(p=>p.cl.replace(' (MTD)','')),datasets:[{data:s.pairs.map(p=>p.mr),backgroundColor:s.pairs.map(p=>p.mr>=0?CL.green:CL.red),borderRadius:4}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{...TTF,callbacks:{
+      label:c=>' '+fmtSign(c.parsed.y)+' Cr',
+      footer:it=>{const p=s.pairs[it[0].dataIndex];return ['Marketing revenue '+p.cl+' = '+fmtSign(p.mr)+' Cr','CY '+fmtCr(p.cy)+' Cr − PY '+fmtCr(p.py)+' Cr'];}}}},
+      scales:{x:{grid:{display:false}},y:{grid:{color:'rgba(255,255,255,.05)'},ticks:{callback:v=>fmtCr(v)}}}}});
+
+  if(s.seasonality){
+    dcc.se=new Chart($('#dSeason'),{type:'bar',data:{labels:s.seasonality.map(x=>x.l),datasets:[
+      {type:'bar',label:'Index',data:s.seasonality.map(x=>x.idx),backgroundColor:s.seasonality.map(x=>x.idx>=1?CL.blue:CL.grey),borderRadius:3,order:2},
+      {type:'line',label:'Avg',data:s.seasonality.map(()=>1.0),borderColor:'#94a3b8',borderDash:[4,4],pointRadius:0,order:1}
+    ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{...TTF,callbacks:{
+      label:c=>' '+c.parsed.y.toFixed(2)+'× avg',
+      footer:it=>{const d=s.seasonality[it[0].dataIndex];
+        return [d.l+' index '+d.idx.toFixed(2)+'×',
+          'FY26 month is '+(Math.abs(d.idx-1)*100).toFixed(0)+'% '+(d.idx>=1?'above':'below')+' the annual average — '+(d.idx>=1?'seasonally strong':'seasonally weak')];}}}},
+      scales:{x:{grid:{display:false}},y:{grid:{color:'rgba(255,255,255,.05)'},ticks:{callback:v=>v.toFixed(1)+'×'}}}}});
+  }else{
+    dcc.se=new Chart($('#dSeason'),{type:'bar',data:{labels:['Insufficient FY26 history'],datasets:[{data:[0],backgroundColor:CL.grey,borderRadius:3}]},
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{enabled:false}},
+        scales:{x:{grid:{display:false}},y:{display:false}}}});
+  }
+
+  dcc.d=new Chart($('#dTraj'),{type:'bar',data:{labels:s.traj.map(t=>t.l),datasets:[{data:s.traj.map(t=>t.v),backgroundColor:s.traj.map(t=>t.fy==='fy26'?CL.blue:CL.green),borderRadius:3}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{...TTF,callbacks:{
+      label:c=>' '+fmtCr(c.parsed.y),
+      footer:it=>{const t=s.traj[it[0].dataIndex];
+        return [(t.fy==='fy26'?'FY26 (prior year)':'FY27 (current year)')+' — '+t.l+': '+fmtCr(t.v)+' Cr'];}}}},
+      scales:{x:{grid:{display:false}},y:{grid:{color:'rgba(255,255,255,.05)'},ticks:{callback:v=>fmtCr(v)}}}}});
+
+  const scen=[
+    {n:'Repeat FY26 (0% growth)',v:s.proj_pess,hl:false},
+    {n:'Current trend (Q1 YoY held)',v:s.proj_base,hl:true},
+    {n:'Plan (FY27 target)',v:s.rev_tgt,hl:false}
+  ];
+  $('#dScen').innerHTML=scen.map(r=>{
+    const ach=r.v/s.rev_tgt; const tone=pctTone(ach);
+    return `<tr class="${r.hl?'hl':''}"><td>${esc(r.n)}</td><td class="num">${fmtCr(r.v)}</td>
+      <td><span class="pill ${tone}">${fmtPct(ach)}</span></td>
+      <td class="mut">${ach>=1?'Above plan':(ach>=.6?'Gap to close':'Major gap')}</td></tr>`;
+  }).join('');
+}
+$('#sbuSelect').addEventListener('change',e=>{currentSBU=e.target.value;renderDetail();});
+$('#prevSbu').addEventListener('click',()=>{const i=sbus.findIndex(x=>x.code===currentSBU);currentSBU=sbus[(i-1+sbus.length)%sbus.length].code;renderDetail();});
+$('#nextSbu').addEventListener('click',()=>{const i=sbus.findIndex(x=>x.code===currentSBU);currentSBU=sbus[(i+1)%sbus.length].code;renderDetail();});
+
+/* ---------- Efficiency ---------- */
+function effClass(x){
+  if(x.cy_tot<0.05) return {tone:'grey',label:'Pre-launch'};
+  if(x.rev_per_spend==null) return {tone:'grey',label:'No spend'};
+  if(x.mr_tot>=0 && x.rev_per_spend>=1) return {tone:'green',label:'Efficient grower'};
+  if(x.mr_tot>=0) return {tone:'amber',label:'Costly grower'};
+  return {tone:'red',label:'Declining on spend'};
+}
+let esKey=null, esDir=1, eff={};
+function effSort(a,b){
+  if(!esKey) return b.rev_tgt-a.rev_tgt;
+  let av,bv;
+  if(esKey==='cls'){av=a.cls.label;bv=b.cls.label;}
+  else {av=a[esKey];bv=b[esKey];}
+  if(typeof av==='string'){av=av.toLowerCase();bv=bv.toLowerCase();return av<bv?-1*esDir:av>bv?1*esDir:0;}
+  if(av==null)return 1; if(bv==null)return -1;
+  return (av-bv)*esDir;
+}
+function renderEfficiency(){
+  const arr=sbus.map(x=>({...x, cls:effClass(x)})).sort(effSort);
+  $('#ebody').innerHTML=arr.map(x=>{
+    const c=x.cls;
+    return `<tr class="click" data-code="${x.code}" title="${effHover(x)}">
+      <td><b>${esc(x.name)}</b> <span class="mut">${x.code}</span></td>
+      <td class="num ${x.mr_tot>=0?'pos':'neg'}">${fmtSign(x.mr_tot)}</td>
+      <td class="num">${fmtCr(x.cy_mkt_tot)}</td>
+      <td class="num ${x.rev_per_spend==null?'mut':(x.rev_per_spend>=0?'pos':'neg')}">${x.rev_per_spend==null?'n/a':(x.rev_per_spend>=0?'+':'')+x.rev_per_spend.toFixed(1)+'×'}</td>
+      <td class="num mut">${fmtPct(x.cy_intensity)}</td>
+      <td class="num mut">${fmtPct(x.py_intensity)}</td>
+      <td class="num ${x.intensity_delta>0?'neg':'pos'}">${fmtSign(x.intensity_delta*100).replace('%','')} pp</td>
+      <td class="num ${x.mom==null?'mut':(x.mom>=0?'pos':'neg')}">${x.mom==null?'n/a':(x.mom>=0?'+':'')+(x.mom*100).toFixed(1)+'%'}</td>
+      <td><span class="pill ${c.tone}">${esc(c.label)}</span></td>
+    </tr>`;
+  }).join('');
+  document.querySelectorAll('#ebody tr').forEach(tr=>tr.addEventListener('click',()=>{
+    currentSBU=tr.dataset.code; syncSelect(); switchToDetail();
+  }));
+
+  Object.values(eff).forEach(c=>c&&c.destroy()); eff={};
+  const efRows=arr.filter(x=>x.rev_per_spend!=null);
+  eff.b=new Chart($('#efBar'),{type:'bar',data:{labels:efRows.map(x=>x.code),
+    datasets:[{data:efRows.map(x=>x.rev_per_spend),
+      backgroundColor:efRows.map(x=>CL[effClass(x).tone]),borderRadius:4}]},
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{...TTF,callbacks:{
+      label:c=>' '+(c.parsed.x>=0?'+':'')+c.parsed.x.toFixed(1)+'× growth per 1 Cr spend',
+      footer:it=>effReason(efRows[it[0].dataIndex])}}},
+      scales:{x:{grid:{color:'rgba(255,255,255,.05)'}},y:{grid:{display:false}}}}});
+
+  const diag={id:'diag',beforeDatasetsDraw(chart){
+    const {ctx,scales:{x,y}}=chart; if(!x||!y)return;
+    const m=Math.min(x.max||0,y.max||0); if(m<=0)return;
+    ctx.save();ctx.strokeStyle='rgba(255,255,255,.22)';ctx.setLineDash([5,5]);ctx.lineWidth=1;
+    const x0=x.getPixelForValue(0),y0=y.getPixelForValue(0);
+    const x1=x.getPixelForValue(m),y1=y.getPixelForValue(m);
+    ctx.beginPath();ctx.moveTo(x0,y0);ctx.lineTo(x1,y1);ctx.stroke();ctx.restore();
+  }};
+  eff.s=new Chart($('#efScatter'),{type:'scatter',data:{datasets:[{label:'SBU',
+    data:arr.map(x=>({x:x.cy_mkt_tot,y:x.mr_tot,r:Math.max(4,Math.min(20,Math.sqrt(x.rev_tgt)*1.2)),code:x.code,name:x.name,tone:effClass(x).tone})),
+    backgroundColor:arr.map(x=>CL[effClass(x).tone]),borderColor:'#070c18',borderWidth:1}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{...TTF,callbacks:{
+      label:c=>{const d=c.raw;return ` ${d.name} — spend ${fmtCr(d.x)}, mkt rev ${fmtSign(d.y)}`;},
+      footer:it=>{const d=it[0].raw,x=arr[it[0].dataIndex];
+        return ['Bubble size = revenue target '+fmtCr(x.rev_tgt)+' Cr',
+          d.y>=d.x?'Above the 1:1 line — each 1 Cr of spend returns >1 Cr growth':'Below the 1:1 line — spend exceeds the growth it generates',
+          ...effReason(x)];}}}},
+      scales:{x:{min:0,grid:{color:'rgba(255,255,255,.05)'},title:{display:true,text:'Marketing spend (Cr)'}},
+        y:{min:0,grid:{color:'rgba(255,255,255,.05)'},title:{display:true,text:'Marketing revenue (Cr)'}}}},
+    plugins:[diag]});
+}
+document.querySelectorAll('#etable th').forEach(th=>th.addEventListener('click',()=>{
+  const k=th.dataset.k; if(!k)return;
+  if(esKey===k){esDir*=-1;}else{esKey=k;esDir=1;}
+  renderEfficiency();
+}));
+
+/* ---------- Actions ---------- */
+let acc={};
+function actionFor(x){
+  const cls=effClass(x);
+  const preLaunch=x.cy_tot<0.05 || (x.trend==null && x.run_rate<=0.5);
+  const behind=x.rev_ach<0.9, growing=x.mr_tot>=0;
+  if(preLaunch) return {move:'Build launch/ramp plan',owner:'SBU lead + Marketing',focus:'Milestones, distribution, first revenue — de-risk the flat/zero forecast',priority:'High',tone:'blue'};
+  if(cls.label==='Declining on spend') return {move:'Freeze & reallocate spend',owner:'Marketing + Finance',focus:'Stop funding decline; redeploy to behind-but-growing SBUs',priority:'Critical',tone:'red'};
+  if(behind && !growing) return {move:'Root-cause & fix first',owner:'Ops + Sales',focus:'Supply / GTM before more marketing — spend won\'t fix a shrinking base',priority:'Critical',tone:'red'};
+  if(behind && growing) return {move:'Fund & accelerate',owner:'Marketing + Sales',focus:'Best ROI — incremental spend converts into growth',priority:'High',tone:'amber'};
+  if(!behind && growing) return {move:'Protect & scale',owner:'SBU lead',focus:'Sustain share; pull forward FY28 ambition',priority:'Monitor',tone:'green'};
+  return {move:'Defend share',owner:'SBU lead',focus:'Arrest the decline; defend position',priority:'Monitor',tone:'amber'};
+}
+function renderActions(){
+  Object.values(acc).forEach(c=>c&&c.destroy()); acc={};
+  const w={Critical:0,High:1,Monitor:2};
+  const rows=sbus.map(x=>({x,a:actionFor(x)})).sort((p,q)=>(w[p.a.priority]-w[q.a.priority])||(p.x.proj_gap-q.x.proj_gap));
+  $('#abody').innerHTML=rows.map(({x,a})=>`<tr class="click" data-code="${x.code}" title="${sbuHover(x)}">
+    <td><b>${esc(x.name)}</b> <span class="mut">${x.code}</span></td>
+    <td><span class="pill ${x.status.tone}">${esc(x.status.label)}</span></td>
+    <td><span class="pill ${pctTone(x.rev_ach)}">${fmtPct(x.rev_ach)}</span></td>
+    <td class="num ${x.mr_tot>=0?'pos':'neg'}">${fmtSign(x.mr_tot)}</td>
+    <td><span class="pill ${effClass(x).tone}">${esc(effClass(x).label)}</span></td>
+    <td class="num ${x.proj_gap>=0?'pos':'neg'}">${fmtSign(x.proj_gap)}</td>
+    <td><b>${esc(a.move)}</b></td>
+    <td class="mut">${esc(a.owner)}</td>
+    <td class="mut">${esc(a.focus)}</td>
+    <td><span class="pill ${a.tone}">${a.priority}</span></td>
+  </tr>`).join('');
+  document.querySelectorAll('#abody tr').forEach(tr=>tr.addEventListener('click',()=>{currentSBU=tr.dataset.code;syncSelect();switchToDetail();}));
+
+  const counts={}; rows.forEach(({a})=>counts[a.move]=(counts[a.move]||0)+1);
+  const moves=Object.keys(counts);
+  acc.mix=new Chart($('#acMix'),{type:'doughnut',data:{labels:moves,datasets:[{data:moves.map(m=>counts[m]),backgroundColor:moves.map(m=>'hsl('+((moves.indexOf(m)*73)%360)+',60%,55%)'),borderColor:'#101828',borderWidth:2}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'58%',plugins:{legend:{position:'right',labels:{boxWidth:10,font:{size:10}}},tooltip:{...TTF,callbacks:{label:c=>' '+c.parsed+' SBUs'}}}}});
+
+  const gaps=sbus.filter(x=>x.proj_gap<0).sort((a,b)=>a.proj_gap-b.proj_gap).slice(0,8);
+  acc.gap=new Chart($('#acGap'),{type:'bar',data:{labels:gaps.map(x=>x.code),datasets:[{data:gaps.map(x=>x.proj_gap),backgroundColor:gaps.map(()=>CL.red),borderRadius:4}]},
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{...TTF,callbacks:{
+      label:c=>' '+fmtCr(c.parsed.x)+' Cr shortfall',
+      footer:it=>sbuForecastReason(gaps[it[0].dataIndex])}}},
+      scales:{x:{grid:{color:'rgba(255,255,255,.05)'}},y:{grid:{display:false}}}}});
+}
+
+/* ---------- Early Warnings ---------- */
+let wcc={};
+function flags(x){
+  const f=[];
+  if(x.rev_ach<0.9) f.push({t:'Behind plan',s:'r'});
+  if(effClass(x).label==='Declining on spend') f.push({t:'Declining on spend',s:'r'});
+  if(x.cy_tot<0.05 || (x.trend==null && x.run_rate<=0.5)) f.push({t:'Ramp / pre-launch',s:'a'});
+  if(x.run_rate>0.5 && x.required_run>0 && x.run_rate<x.required_run) f.push({t:'Burn gap',s:'a'});
+  if(x.mom!=null && x.mom<0) f.push({t:'MoM slowing',s:'a'});
+  if(x.gp<0) f.push({t:'Negative margin',s:'r'});
+  return f;
+}
+function renderWarnings(){
+  Object.values(wcc).forEach(c=>c&&c.destroy()); wcc={};
+  const rows=sbus.map(x=>{const fl=flags(x);const lift=x.run_rate>0.01?x.required_run/x.run_rate:null;return {x,fl,lift};});
+  $('#wbody').innerHTML=rows.map(({x,fl,lift})=>`<tr class="click" data-code="${x.code}" title="${sbuHover(x)}">
+    <td><b>${esc(x.name)}</b> <span class="mut">${x.code}</span></td>
+    <td>${fl.length?fl.map(f=>`<span class="flag ${f.s}">${esc(f.t)}</span>`).join(''):'<span class="mut">—</span>'}</td>
+    <td class="num">${fmtCr(x.run_rate)}</td>
+    <td class="num">${x.required_run>0?fmtCr(x.required_run):'—'}</td>
+    <td class="num ${lift==null?'mut':(lift>1.3?'neg':(lift>1?'warn':''))}">${lift==null?'—':lift.toFixed(1)+'×'}</td>
+  </tr>`).join('');
+  document.querySelectorAll('#wbody tr').forEach(tr=>tr.addEventListener('click',()=>{currentSBU=tr.dataset.code;syncSelect();switchToDetail();}));
+
+  const burn=rows.filter(r=>r.x.run_rate>0.5 && r.x.required_run>0);
+  wcc.burn=new Chart($('#wBurn'),{type:'bar',data:{labels:burn.map(r=>r.x.code),datasets:[
+    {label:'Current (Jul+Aug)',data:burn.map(r=>r.x.run_rate),backgroundColor:CL.green,borderRadius:4},
+    {label:'Required to hit plan',data:burn.map(r=>r.x.required_run),backgroundColor:'#33415f',borderRadius:4}
+  ]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{boxWidth:10}},tooltip:{...TTF,callbacks:{
+    label:c=>' '+c.dataset.label+': '+fmtCr(c.parsed.x),
+    footer:it=>{const r=burn[it[0].dataIndex];return [r.x.name+' must lift from '+fmtCr(r.x.run_rate)+' to '+fmtCr(r.x.required_run)+' Cr/mo — a '+(r.lift-1>=0?'+':'')+((r.lift-1)*100).toFixed(0)+'% faster pace'];}}}},
+    scales:{x:{grid:{color:'rgba(255,255,255,.05)'}},y:{grid:{display:false}}}}});
+}
+
+/* ---------- Reallocation simulator ---------- */
+function renderRealloc(){
+  const srcs=sbus.filter(x=>effClass(x).label==='Declining on spend');
+  const dsts=sbus.filter(x=>x.rev_ach<0.9 && x.mr_tot>=0 && x.cy_tot>=0.05);
+  $('#raFrom').innerHTML=(srcs.length?srcs.map(x=>`<option value="${x.code}">${esc(x.name)} (${x.code}) · ${(x.rev_per_spend>=0?'+':'')+x.rev_per_spend.toFixed(1)}×</option>`).join(''):'<option value="">No "declining on spend" SBU</option>');
+  $('#raTo').innerHTML=(dsts.length?dsts.map(x=>`<option value="${x.code}">${esc(x.name)} (${x.code}) · ${(x.rev_per_spend>=0?'+':'')+x.rev_per_spend.toFixed(1)}×</option>`).join(''):'<option value="">No "behind + growing" SBU</option>');
+  $('#raFrom').value=srcs[0]?srcs[0].code:'';
+  $('#raTo').value=dsts[0]?dsts[0].code:'';
+  reallocCalc();
+}
+function reallocCalc(){
+  const src=sbus.find(x=>x.code===$('#raFrom').value);
+  const dst=sbus.find(x=>x.code===$('#raTo').value);
+  const amt=+$('#raAmt').value; $('#raVal').textContent=amt;
+  const out=$('#raResult'), note=$('#raNote');
+  if(!src||!dst){out.textContent='—';out.className='ro';note.textContent='Select a source and a destination to estimate the impact.';return;}
+  const srcR=src.rev_per_spend||0, dstR=dst.rev_per_spend||0;
+  const net=amt*(dstR-srcR);
+  out.textContent=(net>=0?'+':'')+net.toFixed(1)+' Cr';
+  out.className='ro '+(net>=0?'':'neg');
+  note.innerHTML='Moving '+fmtCr(amt)+' Cr from '+esc(src.name)+' ('+src.code+') to '+esc(dst.name)+' ('+dst.code+') yields an estimated <b>'+(net>=0?'+':'')+net.toFixed(1)+' Cr</b> of incremental Marketing Revenue (growth), using each SBU\'s current Rev-per-Cr-spend. Assumes no diminishing returns or timing lag — treat as directional.';
+}
+$('#raFrom').addEventListener('change',reallocCalc);
+$('#raTo').addEventListener('change',reallocCalc);
+$('#raAmt').addEventListener('input',reallocCalc);
+
+/* ---------- init ---------- */
+$('#sbuSelect').innerHTML=sbus.map(x=>`<option value="${x.code}">${esc(x.name)} (${x.code})</option>`).join('');
+renderKPIs(); renderAlert(); renderInsights(); renderTable(); renderOverview(); renderRealloc();
+</script>
+</body>
+</html>
