@@ -1,3 +1,5 @@
+![Revenue Leakage Auditor](assets/banner.svg)
+
 # Revenue Assurance & Marketing Forecast — portfolio demo
 
 A single-file, zero-backend dashboard that turns one group-wide revenue-assurance extract into a
